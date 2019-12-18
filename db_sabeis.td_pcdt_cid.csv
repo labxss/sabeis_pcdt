@@ -1,0 +1,335 @@
+"co_seq_cid_pcdt","co_seq_pcdt","no_pcdt","nu_cid"
+1,1,Acne,L700
+2,1,Acne,L701
+3,1,Acne,L708
+4,2,Acromegalia,D610
+5,2,Acromegalia,D611
+6,2,Acromegalia,D612
+7,2,Acromegalia,D613
+8,2,Acromegalia,E220
+9,3,Anemia Aplástica,D618
+10,4,Anemia Hemolítica Autoimune,D590
+11,4,Anemia Hemolítica Autoimune,D591
+12,5,Anemia na Insuficiência Renal Crônica,N180
+13,5,Anemia na Insuficiência Renal Crônica,N188
+14,6,Angioedema Hereditário,D841
+15,7,Aplasia Pura Adquirida Crônica da Série Vermelha,D600
+16,8,Artrite Psoríaca,M070
+17,8,Artrite Psoríaca,M073
+18,9,Artrite Reativa - Doença de Reiter,M023
+19,10,Artrite Reumatoide,M050
+20,10,Artrite Reumatoide,M051
+21,10,Artrite Reumatoide,M052
+22,10,Artrite Reumatoide,M053
+23,10,Artrite Reumatoide,M058
+24,10,Artrite Reumatoide,M060
+25,10,Artrite Reumatoide,M068
+26,10,Artrite Reumatoide,M080
+27,11,Asma,J450
+28,11,Asma,J451
+29,11,Asma,J458
+30,12,Comportamento Agressivo no Transtorno de Espectro do Autismo,F840
+31,12,Comportamento Agressivo no Transtorno de Espectro do Autismo,F841
+32,12,Comportamento Agressivo no Transtorno de Espectro do Autismo,F843
+33,12,Comportamento Agressivo no Transtorno de Espectro do Autismo,F845
+34,12,Comportamento Agressivo no Transtorno de Espectro do Autismo,F848
+35,13,Deficiência de Hormônio do Crescimento,E23
+36,14,Dermatomiosite e Polimiosite,M330
+37,14,Dermatomiosite e Polimiosite,M331
+38,14,Dermatomiosite e Polimiosite,M332
+39,15,Diabetes Insípido,E232
+40,16,Dislipidemia,E780
+41,16,Dislipidemia,E781
+42,16,Dislipidemia,E782
+43,16,Dislipidemia,E783
+44,16,Dislipidemia,E784
+45,16,Dislipidemia,E785
+46,16,Dislipidemia,E786
+47,16,Dislipidemia,E788
+48,17,Distonias Focais e Espasmo Hemifacial,G240
+49,17,Distonias Focais e Espasmo Hemifacial,G241
+50,17,Distonias Focais e Espasmo Hemifacial,G242
+51,17,Distonias Focais e Espasmo Hemifacial,G243
+52,17,Distonias Focais e Espasmo Hemifacial,G244
+53,17,Distonias Focais e Espasmo Hemifacial,G245
+54,17,Distonias Focais e Espasmo Hemifacial,G248
+55,17,Distonias Focais e Espasmo Hemifacial,G518
+56,18,Doença de Alzheimer,G300
+57,18,Doença de Alzheimer,G301
+58,18,Doença de Alzheimer,G308
+59,19,Doença de Crohn,K500
+60,19,Doença de Crohn,K501
+61,19,Doença de Crohn,K508
+62,19,Doença de Crohn,M074
+63,20,Doença de Gaucher,E752
+64,21,Doença de Paget - Osteíte Deformante,M888
+65,22,Doença de Parkinson,G20
+66,23,Doença de Wilson,E830
+67,24,Doença Falciforme,D561
+68,24,Doença Falciforme,D568
+69,24,Doença Falciforme,D570
+70,24,Doença Falciforme,D571
+71,24,Doença Falciforme,D572
+72,25,Doença pelo HIV Resultando em Outras Doenças,B200
+73,25,Doença pelo HIV Resultando em Outras Doenças,B201
+74,25,Doença pelo HIV Resultando em Outras Doenças,B202
+75,25,Doença pelo HIV Resultando em Outras Doenças,B203
+76,25,Doença pelo HIV Resultando em Outras Doenças,B204
+77,25,Doença pelo HIV Resultando em Outras Doenças,B205
+78,25,Doença pelo HIV Resultando em Outras Doenças,B206
+79,25,Doença pelo HIV Resultando em Outras Doenças,B207
+80,25,Doença pelo HIV Resultando em Outras Doenças,B208
+81,25,Doença pelo HIV Resultando em Outras Doenças,B209
+82,25,Doença pelo HIV Resultando em Outras Doenças,B220
+83,25,Doença pelo HIV Resultando em Outras Doenças,B221
+84,25,Doença pelo HIV Resultando em Outras Doenças,B222
+85,25,Doença pelo HIV Resultando em Outras Doenças,B227
+86,25,Doença pelo HIV Resultando em Outras Doenças,B230
+87,25,Doença pelo HIV Resultando em Outras Doenças,B231
+88,25,Doença pelo HIV Resultando em Outras Doenças,B232
+89,25,Doença pelo HIV Resultando em Outras Doenças,B238
+90,25,Doença pelo HIV Resultando em Outras Doenças,B24
+91,26,Doença Pulmonar Obstrutiva Crônica,J440
+92,26,Doença Pulmonar Obstrutiva Crônica,J441
+93,26,Doença Pulmonar Obstrutiva Crônica,J448
+94,27,Dor Crônica,R521
+95,27,Dor Crônica,R522
+96,28,Endometriose,N800
+97,28,Endometriose,N801
+98,28,Endometriose,N802
+99,28,Endometriose,N803
+100,28,Endometriose,N804
+101,28,Endometriose,N805
+102,28,Endometriose,N808
+103,29,Epilepsia,G400
+104,29,Epilepsia,G401
+105,29,Epilepsia,G402
+106,29,Epilepsia,G403
+107,29,Epilepsia,G404
+108,29,Epilepsia,G405
+109,29,Epilepsia,G406
+110,29,Epilepsia,G407
+111,29,Epilepsia,G408
+112,30,Esclerose Lateral Amiotrófica,G122
+113,31,Esclerose Múltipla,G35
+114,32,Esclerose Sistêmica,M340
+115,32,Esclerose Sistêmica,M341
+116,32,Esclerose Sistêmica,M348
+117,33,Espasticidade,G041
+118,33,Espasticidade,G800
+119,33,Espasticidade,G801
+120,33,Espasticidade,G802
+121,33,Espasticidade,G811
+122,33,Espasticidade,G821
+123,33,Espasticidade,G824
+124,33,Espasticidade,I690
+125,33,Espasticidade,I691
+126,33,Espasticidade,I692
+127,33,Espasticidade,I693
+128,33,Espasticidade,I694
+129,33,Espasticidade,I698
+130,33,Espasticidade,T905
+131,33,Espasticidade,T908
+132,34,Espondilite Ancilosante,M45
+133,34,Espondilite Ancilosante,M468
+134,35,Espondilopatia Inflamatória,M468
+135,36,Esquizofrenia,F200
+136,36,Esquizofrenia,F201
+137,36,Esquizofrenia,F202
+138,36,Esquizofrenia,F203
+139,36,Esquizofrenia,F204
+140,36,Esquizofrenia,F205
+141,36,Esquizofrenia,F206
+142,36,Esquizofrenia,F208
+143,37,Fenilcetonúria,E700
+144,37,Fenilcetonúria,E701
+145,38,Fibrose Cística,E840
+146,38,Fibrose Cística,E841
+147,38,Fibrose Cística,E848
+148,39,Glaucoma,H401
+149,39,Glaucoma,H402
+150,39,Glaucoma,H403
+151,39,Glaucoma,H404
+152,39,Glaucoma,H405
+153,39,Glaucoma,H406
+154,39,Glaucoma,H408
+155,39,Glaucoma,Q150
+156,40,Hemangioma,D180
+157,41,Hepatite Autoimune,K754
+158,42,Hepatite B e Coinfecções,B180
+159,42,Hepatite B e Coinfecções,B181
+160,43,Hepatite C e Coinfecções,B171
+161,43,Hepatite C e Coinfecções,B182
+162,44,Hiperfosfatemia na Insuficiência Renal Crônica,E833
+163,44,Hiperfosfatemia na Insuficiência Renal Crônica,N180
+164,45,Hiperplasia adrenal congênita,E250
+165,46,Hiperprolactinemia,E221
+166,47,Hipertensão Arterial Pulmonar,I270
+167,47,Hipertensão Arterial Pulmonar,I272
+168,47,Hipertensão Arterial Pulmonar,I278
+169,48,Hipoparatireoidismo,E200
+170,48,Hipoparatireoidismo,E201
+171,48,Hipoparatireoidismo,E208
+172,48,Hipoparatireoidismo,E892
+173,49,Ictioses Hereditárias,L440
+174,49,Ictioses Hereditárias,Q800
+175,49,Ictioses Hereditárias,Q801
+176,49,Ictioses Hereditárias,Q802
+177,49,Ictioses Hereditárias,Q803
+178,49,Ictioses Hereditárias,Q808
+179,49,Ictioses Hereditárias,Q828
+180,50,Imunodeficiência Primária,D800
+181,50,Imunodeficiência Primária,D801
+182,50,Imunodeficiência Primária,D803
+183,50,Imunodeficiência Primária,D805
+184,50,Imunodeficiência Primária,D806
+185,50,Imunodeficiência Primária,D807
+186,50,Imunodeficiência Primária,D808
+187,50,Imunodeficiência Primária,D810
+188,50,Imunodeficiência Primária,D811
+189,50,Imunodeficiência Primária,D812
+190,50,Imunodeficiência Primária,D813
+191,50,Imunodeficiência Primária,D814
+192,50,Imunodeficiência Primária,D815
+193,50,Imunodeficiência Primária,D816
+194,50,Imunodeficiência Primária,D817
+195,50,Imunodeficiência Primária,D818
+196,50,Imunodeficiência Primária,D820
+197,50,Imunodeficiência Primária,D821
+198,50,Imunodeficiência Primária,D830
+199,50,Imunodeficiência Primária,D832
+200,50,Imunodeficiência Primária,D838
+201,51,Insuficiência Adrenal Primária - Doença de Addison,E271
+202,51,Insuficiência Adrenal Primária - Doença de Addison,E274
+203,52,Insuficiência Pancreática Exócrina,K860
+204,52,Insuficiência Pancreática Exócrina,K861
+205,52,Insuficiência Pancreática Exócrina,K903
+206,53,Leiomioma de Útero,D250
+207,53,Leiomioma de Útero,D251
+208,53,Leiomioma de Útero,D252
+209,54,Lúpus Eritrematoso Sistêmico,L930
+210,54,Lúpus Eritrematoso Sistêmico,L931
+211,54,Lúpus Eritrematoso Sistêmico,M321
+212,54,Lúpus Eritrematoso Sistêmico,M328
+213,55,Miastenia Gravis,G700
+214,56,Neutropenia,D460
+215,56,Neutropenia,D461
+216,56,Neutropenia,D467
+217,56,Neutropenia,D70
+218,57,Osteodistrofia Renal,N180
+219,57,Osteodistrofia Renal,N188
+220,57,Osteodistrofia Renal,N250
+221,57,Osteodistrofia Renal,N258
+222,58,Osteoporose,M800
+223,58,Osteoporose,M801
+224,58,Osteoporose,M802
+225,58,Osteoporose,M803
+226,58,Osteoporose,M804
+227,58,Osteoporose,M805
+228,58,Osteoporose,M808
+229,58,Osteoporose,M810
+230,58,Osteoporose,M811
+231,58,Osteoporose,M812
+232,58,Osteoporose,M813
+233,58,Osteoporose,M814
+234,58,Osteoporose,M815
+235,58,Osteoporose,M816
+236,58,Osteoporose,M818
+237,58,Osteoporose,M820
+238,58,Osteoporose,M821
+239,58,Osteoporose,M828
+240,59,Profilaxia da Reinfecção pelo Vírus da Hepatite B Pós-Transplante Hepático,B160
+241,59,Profilaxia da Reinfecção pelo Vírus da Hepatite B Pós-Transplante Hepático,B162
+242,59,Profilaxia da Reinfecção pelo Vírus da Hepatite B Pós-Transplante Hepático,B180
+243,59,Profilaxia da Reinfecção pelo Vírus da Hepatite B Pós-Transplante Hepático,B181
+244,60,Psoríase,L400
+245,60,Psoríase,L401
+246,60,Psoríase,L404
+247,60,Psoríase,L408
+248,61,Puberdade Precoce Central,E228
+249,62,Púrpura Trombocitopênica Idiopática,D693
+250,63,Raquitismo e Osteomalácia,E550
+251,63,Raquitismo e Osteomalácia,E559
+252,63,Raquitismo e Osteomalácia,E643
+253,63,Raquitismo e Osteomalácia,E833
+254,63,Raquitismo e Osteomalácia,M830
+255,63,Raquitismo e Osteomalácia,M831
+256,63,Raquitismo e Osteomalácia,M832
+257,63,Raquitismo e Osteomalácia,M833
+258,63,Raquitismo e Osteomalácia,M838
+259,64,Retocolite Ulcerativa,K510
+260,64,Retocolite Ulcerativa,K511
+261,64,Retocolite Ulcerativa,K512
+262,64,Retocolite Ulcerativa,K513
+263,64,Retocolite Ulcerativa,K514
+264,64,Retocolite Ulcerativa,K515
+265,64,Retocolite Ulcerativa,K518
+266,64,Retocolite Ulcerativa,K522
+267,64,Retocolite Ulcerativa,M075
+268,64,Retocolite Ulcerativa,M076
+269,65,Síndrome de Guillain-Barré,G610
+270,66,Síndrome de Ovários Policísticos e Hirsutismo,E280
+271,66,Síndrome de Ovários Policísticos e Hirsutismo,E282
+272,66,Síndrome de Ovários Policísticos e Hirsutismo,L680
+273,67,Síndrome de Turner,Q960
+274,67,Síndrome de Turner,Q961
+275,67,Síndrome de Turner,Q962
+276,67,Síndrome de Turner,Q963
+277,67,Síndrome de Turner,Q964
+278,67,Síndrome de Turner,Q968
+279,68,Síndrome Nefrótica,N040
+280,68,Síndrome Nefrótica,N041
+281,68,Síndrome Nefrótica,N042
+282,68,Síndrome Nefrótica,N043
+283,68,Síndrome Nefrótica,N044
+284,68,Síndrome Nefrótica,N045
+285,68,Síndrome Nefrótica,N046
+286,68,Síndrome Nefrótica,N047
+287,68,Síndrome Nefrótica,N048
+288,69,Síndromes Coronarianas Agudas,I200
+289,69,Síndromes Coronarianas Agudas,I201
+290,69,Síndromes Coronarianas Agudas,I210
+291,69,Síndromes Coronarianas Agudas,I211
+292,69,Síndromes Coronarianas Agudas,I212
+293,69,Síndromes Coronarianas Agudas,I213
+294,69,Síndromes Coronarianas Agudas,I214
+295,69,Síndromes Coronarianas Agudas,I219
+296,69,Síndromes Coronarianas Agudas,I220
+297,69,Síndromes Coronarianas Agudas,I221
+298,69,Síndromes Coronarianas Agudas,I228
+299,69,Síndromes Coronarianas Agudas,I229
+300,69,Síndromes Coronarianas Agudas,I230
+301,69,Síndromes Coronarianas Agudas,I231
+302,69,Síndromes Coronarianas Agudas,I232
+303,69,Síndromes Coronarianas Agudas,I233
+304,69,Síndromes Coronarianas Agudas,I234
+305,69,Síndromes Coronarianas Agudas,I235
+306,69,Síndromes Coronarianas Agudas,I236
+307,69,Síndromes Coronarianas Agudas,I238
+308,69,Síndromes Coronarianas Agudas,I240
+309,69,Síndromes Coronarianas Agudas,I248
+310,69,Síndromes Coronarianas Agudas,I249
+311,70,Sobrecarga de Ferro,E831
+312,70,Sobrecarga de Ferro,T454
+313,71,Transplante Cardíaco,Z941
+314,72,Transplante de Coração e Pulmão,Z943
+315,73,Transplante de Medula ou Pâncreas,Z948
+316,74,Transplante de Pulmão,Z942
+317,75,Transplante Hepático,T864
+318,75,Transplante Hepático,Z944
+319,76,Transplante Renal,T861
+320,76,Transplante Renal,Z940
+321,77,Transtorno Afetivo Bipolar do Tipo I,F311
+322,77,Transtorno Afetivo Bipolar do Tipo I,F312
+323,77,Transtorno Afetivo Bipolar do Tipo I,F313
+324,77,Transtorno Afetivo Bipolar do Tipo I,F314
+325,77,Transtorno Afetivo Bipolar do Tipo I,F315
+326,77,Transtorno Afetivo Bipolar do Tipo I,F316
+327,77,Transtorno Afetivo Bipolar do Tipo I,F317
+328,78,Transtorno Esquizoafetivo,F250
+329,78,Transtorno Esquizoafetivo,F251
+330,78,Transtorno Esquizoafetivo,F252
+331,79,Uveítes Posteriores Não Infecciosas,H300
+332,79,Uveítes Posteriores Não Infecciosas,H301
+333,79,Uveítes Posteriores Não Infecciosas,H302
+334,79,Uveítes Posteriores Não Infecciosas,H308
