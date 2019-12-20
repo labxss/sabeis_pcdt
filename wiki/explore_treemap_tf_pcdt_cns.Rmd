@@ -1,0 +1,28 @@
+### Mapa de árvore - Quem - usuários do PCDT
+
+#### Conceituação
+#### Interpretação
+#### Usos
+#### Limitações
+#### Fonte
+#### Métodos de Cálculo
+#### Categorias Sugeridas para Análise
+#### Dados Estatísticos e Comentários
+#### Notas
+
+```{r}
+library(treemap)
+
+tf_pcdt_cns = read.csv(file="~/Dropbox/sabeis/dataset/db_sabeis.tf_pcdt_cns.csv")
+
+
+
+treemap(tf_pcdt_cns,
+            index=c("sg_uf","no_pcdt"),
+            vSize="qt_cns_mes",
+            type="index",
+            title=""
+    )
+
+```
+

@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>2 Componentes | Sabeis - Sala Aberta de Inteligência em Saúde</title>
+  <meta name="description" content="Wiki do SABEIS - PCDT." />
+  <meta name="generator" content="bookdown 0.16 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="2 Componentes | Sabeis - Sala Aberta de Inteligência em Saúde" />
+  <meta property="og:type" content="book" />
+  
+  
+  <meta property="og:description" content="Wiki do SABEIS - PCDT." />
+  <meta name="github-repo" content="rstudio/bookdown-demo" />
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="2 Componentes | Sabeis - Sala Aberta de Inteligência em Saúde" />
+  
+  <meta name="twitter:description" content="Wiki do SABEIS - PCDT." />
+  
+
+<meta name="author" content="Felipe Ferré" />
+
+
+<meta name="date" content="2019-12-20" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="introdução.html"/>
+<link rel="next" href="repositório.html"/>
+<script src="libs/jquery-2.2.3/jquery.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+
+
+
+<style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+</style>
+
+<link rel="stylesheet" href="style.css" type="text/css" />
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li><a href="./">SABEIS - PCDT</a></li>
+
+<li class="divider"></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i>Prefácio</a><ul>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html#por-que-ler-esse-livro"><i class="fa fa-check"></i>Por que ler esse livro?</a></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html#estrutura-do-livro"><i class="fa fa-check"></i>Estrutura do livro</a></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html#informação-acerca-de-software-e-convenções"><i class="fa fa-check"></i>Informação acerca de software e convenções</a></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html#agradecimentos"><i class="fa fa-check"></i>Agradecimentos</a></li>
+</ul></li>
+<li class="chapter" data-level="" data-path="autoria.html"><a href="autoria.html"><i class="fa fa-check"></i>Autoria</a></li>
+<li class="chapter" data-level="1" data-path="introdução.html"><a href="introdução.html"><i class="fa fa-check"></i><b>1</b> Introdução</a><ul>
+<li class="chapter" data-level="1.1" data-path="introdução.html"><a href="introdução.html#motivação"><i class="fa fa-check"></i><b>1.1</b> Motivação</a></li>
+<li class="chapter" data-level="1.2" data-path="introdução.html"><a href="introdução.html#primeiros-passos"><i class="fa fa-check"></i><b>1.2</b> Primeiros Passos</a></li>
+<li class="chapter" data-level="1.3" data-path="introdução.html"><a href="introdução.html#utilização"><i class="fa fa-check"></i><b>1.3</b> Utilização</a></li>
+<li class="chapter" data-level="1.4" data-path="introdução.html"><a href="introdução.html#resumo-da-ferramenta"><i class="fa fa-check"></i><b>1.4</b> Resumo da ferramenta</a></li>
+<li class="chapter" data-level="1.5" data-path="introdução.html"><a href="introdução.html#dicas"><i class="fa fa-check"></i><b>1.5</b> Dicas</a></li>
+</ul></li>
+<li class="chapter" data-level="2" data-path="componentes.html"><a href="componentes.html"><i class="fa fa-check"></i><b>2</b> Componentes</a><ul>
+<li class="chapter" data-level="2.1" data-path="componentes.html"><a href="componentes.html#selecione"><i class="fa fa-check"></i><b>2.1</b> Selecione</a></li>
+<li class="chapter" data-level="2.2" data-path="componentes.html"><a href="componentes.html#explore"><i class="fa fa-check"></i><b>2.2</b> Explore</a><ul>
+<li class="chapter" data-level="2.2.1" data-path="componentes.html"><a href="componentes.html#mapa-de-árvore---quem---usuários-do-pcdt"><i class="fa fa-check"></i><b>2.2.1</b> Mapa de árvore - Quem - usuários do PCDT</a></li>
+<li class="chapter" data-level="2.2.2" data-path="componentes.html"><a href="componentes.html#pirâmide-etária---usuários-ao-mês-por-habitante-segundo-o-pcdt"><i class="fa fa-check"></i><b>2.2.2</b> Pirâmide etária - Usuários ao mês por habitante segundo o PCDT</a></li>
+</ul></li>
+<li class="chapter" data-level="2.3" data-path="componentes.html"><a href="componentes.html#extrapole"><i class="fa fa-check"></i><b>2.3</b> Extrapole</a></li>
+</ul></li>
+<li class="chapter" data-level="3" data-path="repositório.html"><a href="repositório.html"><i class="fa fa-check"></i><b>3</b> Repositório</a><ul>
+<li class="chapter" data-level="3.1" data-path="repositório.html"><a href="repositório.html#extração-do-ftp-datasus"><i class="fa fa-check"></i><b>3.1</b> Extração do FTP Datasus</a></li>
+<li class="chapter" data-level="3.2" data-path="repositório.html"><a href="repositório.html#transformação-e-carga"><i class="fa fa-check"></i><b>3.2</b> Transformação e Carga</a></li>
+<li class="chapter" data-level="3.3" data-path="repositório.html"><a href="repositório.html#download"><i class="fa fa-check"></i><b>3.3</b> Download</a></li>
+</ul></li>
+<li class="appendix"><span><b>Apêndice</b></span><ul>
+<li class="chapter" data-level="" data-path=""><a href="#apêndice-a---links-úteis"><i class="fa fa-check"></i>Apêndice A - links úteis</a></li>
+</ul></li>
+<li class="chapter" data-level="" data-path="prefácio-1.html"><a href="prefácio-1.html"><i class="fa fa-check"></i>Prefácio</a><ul>
+<li class="chapter" data-level="" data-path="prefácio-1.html"><a href="prefácio-1.html#por-que-ler-esse-livro-1"><i class="fa fa-check"></i>Por que ler esse livro?</a></li>
+<li class="chapter" data-level="" data-path="prefácio-1.html"><a href="prefácio-1.html#estrutura-do-livro-1"><i class="fa fa-check"></i>Estrutura do livro</a></li>
+<li class="chapter" data-level="" data-path="prefácio-1.html"><a href="prefácio-1.html#informação-acerca-de-software-e-convenções-1"><i class="fa fa-check"></i>Informação acerca de software e convenções</a></li>
+<li class="chapter" data-level="" data-path="prefácio-1.html"><a href="prefácio-1.html#agradecimentos-1"><i class="fa fa-check"></i>Agradecimentos</a></li>
+<li class="chapter" data-level="4" data-path="prefácio-1.html"><a href="prefácio-1.html#motivação-1"><i class="fa fa-check"></i><b>4</b> Motivação</a></li>
+<li class="chapter" data-level="5" data-path="prefácio-1.html"><a href="prefácio-1.html#primeiros-passos-1"><i class="fa fa-check"></i><b>5</b> Primeiros Passos</a></li>
+<li class="chapter" data-level="6" data-path="prefácio-1.html"><a href="prefácio-1.html#utilização-1"><i class="fa fa-check"></i><b>6</b> Utilização</a></li>
+<li class="chapter" data-level="7" data-path="prefácio-1.html"><a href="prefácio-1.html#resumo-da-ferramenta-1"><i class="fa fa-check"></i><b>7</b> Resumo da ferramenta</a></li>
+<li class="chapter" data-level="8" data-path="prefácio-1.html"><a href="prefácio-1.html#dicas-1"><i class="fa fa-check"></i><b>8</b> Dicas</a></li>
+<li class="chapter" data-level="9" data-path="prefácio-1.html"><a href="prefácio-1.html#selecione-1"><i class="fa fa-check"></i><b>9</b> Selecione</a></li>
+<li class="chapter" data-level="10" data-path="prefácio-1.html"><a href="prefácio-1.html#explore-1"><i class="fa fa-check"></i><b>10</b> Explore</a></li>
+<li class="chapter" data-level="11" data-path="prefácio-1.html"><a href="prefácio-1.html#extrapole-1"><i class="fa fa-check"></i><b>11</b> Extrapole</a></li>
+<li class="chapter" data-level="12" data-path="prefácio-1.html"><a href="prefácio-1.html#extração-do-ftp-datasus-1"><i class="fa fa-check"></i><b>12</b> Extração do FTP Datasus</a></li>
+<li class="chapter" data-level="13" data-path="prefácio-1.html"><a href="prefácio-1.html#transformação-e-carga-1"><i class="fa fa-check"></i><b>13</b> Transformação e Carga</a></li>
+<li class="chapter" data-level="14" data-path="prefácio-1.html"><a href="prefácio-1.html#download-1"><i class="fa fa-check"></i><b>14</b> Download</a></li>
+<li class="chapter" data-level="" data-path="prefácio-1.html"><a href="prefácio-1.html#apêndice-a---links-úteis-1"><i class="fa fa-check"></i>Apêndice A - links úteis</a><ul>
+<li class="chapter" data-level="14.1" data-path="prefácio-1.html"><a href="prefácio-1.html#pirâmide-etária---usuários-ao-mês-por-habitante-segundo-o-pcdt-1"><i class="fa fa-check"></i><b>14.1</b> Pirâmide etária - Usuários ao mês por habitante segundo o PCDT</a></li>
+<li class="chapter" data-level="14.2" data-path="prefácio-1.html"><a href="prefácio-1.html#mapa-de-árvore---quem---usuários-do-pcdt-1"><i class="fa fa-check"></i><b>14.2</b> Mapa de árvore - Quem - usuários do PCDT</a></li>
+</ul></li>
+</ul></li>
+<li class="divider"></li>
+<li><a href="https://github.com/rstudio/bookdown" target="blank">Published with bookdown</a></li>
+
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Sabeis - Sala Aberta de Inteligência em Saúde</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="componentes" class="section level1">
+<h1><span class="header-section-number">2</span> Componentes</h1>
+<div id="selecione" class="section level2">
+<h2><span class="header-section-number">2.1</span> Selecione</h2>
+</div>
+<div id="explore" class="section level2">
+<h2><span class="header-section-number">2.2</span> Explore</h2>
+<p>teste</p>
+<div id="mapa-de-árvore---quem---usuários-do-pcdt" class="section level3">
+<h3><span class="header-section-number">2.2.1</span> Mapa de árvore - Quem - usuários do PCDT</h3>
+<div id="conceituação" class="section level4">
+<h4><span class="header-section-number">2.2.1.1</span> Conceituação</h4>
+</div>
+<div id="interpretação" class="section level4">
+<h4><span class="header-section-number">2.2.1.2</span> Interpretação</h4>
+</div>
+<div id="usos" class="section level4">
+<h4><span class="header-section-number">2.2.1.3</span> Usos</h4>
+</div>
+<div id="limitações" class="section level4">
+<h4><span class="header-section-number">2.2.1.4</span> Limitações</h4>
+</div>
+<div id="fonte" class="section level4">
+<h4><span class="header-section-number">2.2.1.5</span> Fonte</h4>
+</div>
+<div id="métodos-de-cálculo" class="section level4">
+<h4><span class="header-section-number">2.2.1.6</span> Métodos de Cálculo</h4>
+</div>
+<div id="categorias-sugeridas-para-análise" class="section level4">
+<h4><span class="header-section-number">2.2.1.7</span> Categorias Sugeridas para Análise</h4>
+</div>
+<div id="dados-estatísticos-e-comentários" class="section level4">
+<h4><span class="header-section-number">2.2.1.8</span> Dados Estatísticos e Comentários</h4>
+</div>
+<div id="notas" class="section level4">
+<h4><span class="header-section-number">2.2.1.9</span> Notas</h4>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(treemap)
+
+tf_pcdt_cns =<span class="st"> </span><span class="kw">read.csv</span>(<span class="dt">file=</span><span class="st">&quot;~/Dropbox/sabeis/dataset/db_sabeis.tf_pcdt_cns.csv&quot;</span>)
+
+
+
+<span class="kw">treemap</span>(tf_pcdt_cns,
+            <span class="dt">index=</span><span class="kw">c</span>(<span class="st">&quot;sg_uf&quot;</span>,<span class="st">&quot;no_pcdt&quot;</span>),
+            <span class="dt">vSize=</span><span class="st">&quot;qt_cns_mes&quot;</span>,
+            <span class="dt">type=</span><span class="st">&quot;index&quot;</span>,
+            <span class="dt">title=</span><span class="st">&quot;&quot;</span>
+    )</code></pre></div>
+<p><img src="sabeis_pcdt_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
+</div>
+</div>
+<div id="pirâmide-etária---usuários-ao-mês-por-habitante-segundo-o-pcdt" class="section level3">
+<h3><span class="header-section-number">2.2.2</span> Pirâmide etária - Usuários ao mês por habitante segundo o PCDT</h3>
+<div id="conceituação-1" class="section level4">
+<h4><span class="header-section-number">2.2.2.1</span> Conceituação</h4>
+</div>
+<div id="interpretação-1" class="section level4">
+<h4><span class="header-section-number">2.2.2.2</span> Interpretação</h4>
+</div>
+<div id="usos-1" class="section level4">
+<h4><span class="header-section-number">2.2.2.3</span> Usos</h4>
+</div>
+<div id="limitações-1" class="section level4">
+<h4><span class="header-section-number">2.2.2.4</span> Limitações</h4>
+</div>
+<div id="fonte-1" class="section level4">
+<h4><span class="header-section-number">2.2.2.5</span> Fonte</h4>
+</div>
+<div id="métodos-de-cálculo-1" class="section level4">
+<h4><span class="header-section-number">2.2.2.6</span> Métodos de Cálculo</h4>
+</div>
+<div id="categorias-sugeridas-para-análise-1" class="section level4">
+<h4><span class="header-section-number">2.2.2.7</span> Categorias Sugeridas para Análise</h4>
+</div>
+<div id="dados-estatísticos-e-comentários-1" class="section level4">
+<h4><span class="header-section-number">2.2.2.8</span> Dados Estatísticos e Comentários</h4>
+</div>
+<div id="notas-1" class="section level4">
+<h4><span class="header-section-number">2.2.2.9</span> Notas</h4>
+</div>
+<div id="conjunto-de-dados-e-código-fonte" class="section level4">
+<h4><span class="header-section-number">2.2.2.10</span> Conjunto de dados e Código-fonte</h4>
+<p>Baixe o arquivo <a href="https://www.dropbox.com/s/3pvxxfg3hz4a82h/db_sabeis.tf_pcdt_paciente.csv?dl=0">csv</a> contido na pasta <em>dataset</em>.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(pyramid)
+<span class="kw">library</span>(knitr)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">tf_pcdt_paciente =<span class="st"> </span><span class="kw">read.csv</span>(<span class="dt">file =</span> <span class="st">&#39;../dataset/db_sabeis.tf_pcdt_paciente.csv&#39;</span>)
+
+<span class="co"># ajusta para o formato percentual</span>
+tf_pcdt_paciente<span class="op">$</span>qt_paciente_m =<span class="st"> </span>
+<span class="st">  </span>tf_pcdt_paciente<span class="op">$</span>qt_paciente_m<span class="op">/</span>tf_pcdt_paciente<span class="op">$</span>qt_registros_pcdt<span class="op">*</span><span class="dv">100</span>
+
+tf_pcdt_paciente<span class="op">$</span>qt_paciente_f =<span class="st"> </span>
+<span class="st">  </span>tf_pcdt_paciente<span class="op">$</span>qt_paciente_f<span class="op">/</span>tf_pcdt_paciente<span class="op">$</span>qt_registros_pcdt<span class="op">*</span><span class="dv">100</span></code></pre></div>
+<table>
+<caption><span id="tab:unnamed-chunk-9">Tabela 2.1: </span>Amostra da tabela de entrada.</caption>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">qt_paciente_m</th>
+<th align="right">qt_paciente_f</th>
+<th align="left">sg_faixa_etaria</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>9</td>
+<td align="right">3.754098</td>
+<td align="right">4.491803</td>
+<td align="left">40-44</td>
+</tr>
+<tr class="even">
+<td>10</td>
+<td align="right">4.114754</td>
+<td align="right">4.901639</td>
+<td align="left">45-49</td>
+</tr>
+<tr class="odd">
+<td>11</td>
+<td align="right">4.754098</td>
+<td align="right">6.557377</td>
+<td align="left">50-54</td>
+</tr>
+<tr class="even">
+<td>12</td>
+<td align="right">5.655738</td>
+<td align="right">6.393443</td>
+<td align="left">55-59</td>
+</tr>
+<tr class="odd">
+<td>13</td>
+<td align="right">4.836066</td>
+<td align="right">6.704918</td>
+<td align="left">60-64</td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">pyramid</span>(
+      <span class="kw">subset</span>(tf_pcdt_paciente, co_pcdt <span class="op">==</span><span class="st"> </span><span class="dv">10</span>)[,<span class="kw">c</span>(<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">6</span>)],
+      <span class="dt">Llab=</span><span class="st">&quot;Masculino&quot;</span>,<span class="dt">Rlab=</span><span class="st">&quot;Feminino&quot;</span>,
+      <span class="dt">Lcol=</span><span class="st">&quot;navy&quot;</span>,
+      <span class="dt">Ldens=</span><span class="dv">5</span>,
+      <span class="dt">Rcol=</span><span class="st">&quot;red&quot;</span>,
+      <span class="dt">Rdens=</span><span class="dv">10</span>, <span class="dt">GL=</span><span class="ot">FALSE</span>, <span class="dt">Clab =</span> <span class="st">&quot;Idade&quot;</span>, <span class="dt">main =</span> <span class="st">&quot;usuários (%)&quot;</span>
+    )</code></pre></div>
+<p><img src="sabeis_pcdt_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
+</div>
+</div>
+</div>
+<div id="extrapole" class="section level2">
+<h2><span class="header-section-number">2.3</span> Extrapole</h2>
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="introdução.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="repositório.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/lunr.js"></script>
+<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": false,
+"facebook": true,
+"twitter": true,
+"linkedin": false,
+"weibo": false,
+"instapaper": false,
+"vk": false,
+"all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": "https://github.com/rstudio/bookdown-demo/edit/master/index.Rmd",
+"text": "Edit"
+},
+"history": {
+"link": null,
+"text": null
+},
+"view": {
+"link": null,
+"text": null
+},
+"download": ["sabeis_pcdt.pdf", "sabeis_pcdt.epub"],
+"toc": {
+"collapse": "subsection"
+}
+});
+});
+</script>
+
+</body>
+
+</html>

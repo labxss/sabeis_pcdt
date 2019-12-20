@@ -1,0 +1,57 @@
+# Prefácio {-}
+
+## Por que ler esse livro? {-}
+## Estrutura do livro {-}
+## Informação acerca de software e convenções {-}
+## Agradecimentos {-}
+
+# Autoria {-}
+
+# Introdução
+
+## Motivação
+
+## Primeiros Passos
+
+## Utilização
+
+## Resumo da ferramenta
+
+## Dicas
+
+# Componentes
+
+
+## Selecione
+
+
+## Explore
+
+teste
+
+
+```{r child = 'explore_treemap_tf_pcdt_cns.Rmd'}
+```
+
+
+```{r child = 'explore_pyramid_tf_pcdt_paciente.Rmd'}
+```
+
+
+
+## Extrapole
+
+
+
+# Repositório
+
+## Extração do FTP Datasus
+
+## Transformação e Carga
+
+## Download
+
+# (APPENDIX) Apêndice {-} 
+
+## Apêndice A - links úteis {-}
+

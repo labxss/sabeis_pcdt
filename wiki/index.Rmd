@@ -1,0 +1,27 @@
+--- 
+title: "Sabeis - Sala Aberta de Inteligência em Saúde"
+subtitle: "PCDT - Protocolos Clínicos e Diretrizes Terapêuticas"
+author: "Felipe Ferré"
+date: "`r Sys.Date()`"
+site: bookdown::bookdown_site
+output: bookdown::gitbook
+documentclass: book
+bibliography: [tcc.bib]
+biblio-style: apalike
+link-citations: yes
+github-repo: rstudio/bookdown-demo
+description: "Wiki do SABEIS - PCDT."
+---
+
+```{r child = 'body.Rmd'}
+library(knitr)
+library (readr)
+```
+
+
+```{r include=FALSE}
+# automatically create a bib database for R packages
+knitr::write_bib(c(
+  .packages(), 'bookdown', 'knitr', 'rmarkdown'
+), 'tcc.bib')
+```
