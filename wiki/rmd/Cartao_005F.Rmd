@@ -1,0 +1,109 @@
+### Conceituação
+
+Número de usuários de medicamento e percentual acumulado relativo ao
+Protocolo Clínico e Diretrizes Terapêuticas (PCDT).
+
+### Interpretação
+
+- Cada barra vertical mostra o valor correspondente a um medicamento identificado pela abrevitura.
+- Os pontos corresondem ao percentual acumulado da esquerda para a direita.
+- O eixo vertical da esquerda corresponde ao número de usuários no ano selecionado.
+- O eixo vertical da direita corresponde ao percentual de usuários no ano selecionado.
+- Usualmente verifica-se o número de medicamentos que correspondem a 80% do número de usuários, verificados da esquerda para a direita.
+
+### Usos
+
+- Identificar o impacto de cada medicamento em relação ao total de usuários.
+- Identificar o conjunto de medicamentos que mais impacta em relação ao total de usuários.
+- Subsidiar tomada de decisão relativo ao critério da curva ABC.
+
+### Limitações
+
+- Uso concomitante de medicamentos não foi explicitado.
+
+### Fonte
+
+- DATASUS/MS - Ministério da Saúde, Departamento de Informática do SUS
+[ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Dados/].
+- IBGE - Instituto Brasileiro de Geografia e Estatística [https://educa.ibge.gov.br/jovens/conheca-o-brasil/populacao/18318-piramide-etaria.html]
+
+### Métodos de Cálculo
+
+Fórmula geral para as barras verticais:
+
+$$P_{MAP}=\frac{n_{MAP}}{N_{AP}}$$
+
+onde $P_{MAP}$ é a proporção de usuários do medicamento ao ano por PCDT,
+n_{MAP} é o número de usuários do medicamento ao ano por PCDT e
+N_{AP} é o número de usuários ao ano por PCDT.
+
+### Categorias Sugeridas para Análise
+
+- Unidade geográfica: estado, região ampliada de saúde e região de saúde.
+
+### Dados Estatísticos e Comentários
+
+Visualizar no painel [SABEIS](https://labxss.shinyapps.io/sabeis_pcdt2/) > Explore.
+
+### Notas
+Realizado conforme metodologia RIPSA. Vide a seção *fonte*.
+
+### Visualização
+
+Gráfico de Pareto.
+
+### Conjunto de dados e Código-fonte
+
+#### Pré-requisitos {-}
+
+Baixe o arquivo **db_sabeis.tf_procedimento_paciente_tempo.csv** na pasta
+[dataset](https://github.com/labxss/sabeis_pcdt/tree/master/dataset/csv).
+
+Certifique-se de que os pacotes R abaixo estejam instalados.
+
+```{r, echo=T}
+library(qcc)
+```
+
+
+#### R script {-}
+
+Plota o gráfico de Pareto com o pacote 
+[qcc](https://cran.r-project.org/web/packages/qcc/qcc.pdf).
+
+
+```{r, echo=T}
+tf_procedimento_paciente_tempo=
+    read.csv(
+      file="db_sabeis.tf_procedimento_paciente_tempo.csv"
+    )
+
+    defect <-
+      subset(
+        tf_procedimento_paciente_tempo,
+        nu_ano_competencia == 2018 & co_pcdt==58
+      )$qt_paciente_tempo
+
+    names(defect) <-
+      subset(
+        tf_procedimento_paciente_tempo,
+        nu_ano_competencia == 2018 & co_pcdt==58
+      )$sg_procedimento
+
+    qcc.options(bg.margin = "white")
+
+    pareto.chart(
+      defect,
+      ylab = "usuários-ano",
+      ylab2 = "",
+      main="",
+      cumperc = seq(0, 100, by = 5)  # ranges of the percentages at the right
+    )
+```
+
+```{r echo=FALSE}
+kable(
+  tf_procedimento_paciente_tempo[9:13,], 
+  caption = "Amostra da tabela de entrada."
+)
+```

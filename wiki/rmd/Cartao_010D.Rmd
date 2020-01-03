@@ -1,0 +1,93 @@
+### Conceituação
+
+Projeção trimestral de usuários de medicamento 
+relativo ao Protocolo Clínico e Diretrizes Terapêuticas (PCDT).
+
+### Interpretação
+
+- O eixo vertical ($y$) corresponde ao número de usuários do medicamento.
+- O eixo horizontal ($x$) corresponde ao trimestre.
+- A linha preta correponte à observação histórica.
+- A linha espessa azul corresponde à projeção.
+- A área escura ao redor da linha espessa azul corresponde desvio na margem de 80% de acerto.
+- A área clara ao redor da linha espessa azul corresponde desvio na margem de 95% de acerto.
+
+### Usos
+
+- Projetar o número de usuários em até cinco anos.
+- Auxilia no cálculo de impacto orçamentário.
+- Auxilia no cálculo de programação da Assistência Farmacêutica.
+
+### Limitações
+
+- Poucos parâmetros, visto que apenas o consumo histórico foi utilizado como entrada no método ARIMA. 
+- O erro tende a ser inversamente proporcional ao período observado.
+- O erro tende a ser proporcional às oscilações.
+- A projeção é mais influenciada pelas observações mais recentes.
+
+### Fonte
+
+- DATASUS/MS - Ministério da Saúde, Departamento de Informática do SUS
+[ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Dados/].
+- IBGE - Instituto Brasileiro de Geografia e Estatística [https://educa.ibge.gov.br/jovens/conheca-o-brasil/populacao/18318-piramide-etaria.html]
+
+### Métodos de Cálculo
+
+Não há cálculo, apenas a aplicação de filtros.
+
+### Categorias Sugeridas para Análise
+
+- Unidade geográfica: região ampliada de saúde e região de saúde.
+
+### Dados Estatísticos e Comentários
+
+Visualizar no painel [SABEIS](https://labxss.shinyapps.io/sabeis_pcdt2/) > Explore.
+
+### Notas
+Realizado conforme metodologia RIPSA. Vide a seção *fonte*.
+
+### Visualização
+
+Gráfico cartesiano.
+
+### Conjunto de dados e Código-fonte
+
+#### Pré-requisitos {-}
+
+Baixe o arquivo **db_sabeis.tf_pcdt_medicamento_trimestre.csv** na pasta
+[dataset](https://github.com/labxss/sabeis_pcdt/tree/master/dataset/csv).
+
+Certifique-se de que os pacotes R abaixo estejam instalados.
+
+```{r, echo=T}
+library(forecast)
+library(tseries)
+```
+
+
+#### R script {-}
+
+
+```{r, echo=T, warning=F, message=F}
+
+td_trimestre = read.csv(file="td_trimestre.csv")
+td_trimestre.plot = read.csv(file="td_trimestre.plot.csv")
+
+tf_pcdt_medicamento_trimestre = read.csv(file="db_sabeis.tf_pcdt_medicamento_trimestre.csv")
+
+l=dim(subset(tf_pcdt_medicamento_trimestre, sg_procedimento == 'ADAL40' & co_pcdt == 10))[1] # numero de afericoes
+    p=which(td_trimestre == subset(tf_pcdt_medicamento_trimestre, sg_procedimento == 'ADAL40' & co_pcdt == 10)[1,2]) # inicio do vetor
+    f=20 # trimestres para previsao
+
+
+    plot(
+      forecast(auto.arima(subset(tf_pcdt_medicamento_trimestre, sg_procedimento == 'ADAL40' & co_pcdt == 10)$qt_cns_paciente, allowmean = TRUE), h = 20),
+      xlab = "",
+      ylab="usuários",
+      main="",
+      las = 3  , xaxt='n'
+    )
+
+    axis(1, at=1:(l+f+1), labels=td_trimestre.plot[p:(p+l+f),], las = 3)
+
+```

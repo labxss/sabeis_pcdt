@@ -1,0 +1,1397 @@
+Trata-se da ETL a partir do repositório do DATASUS desenvolvida em bash-linux.
+ETL (do inglês, *extract, transform, load*) é um processo automatizável de 
+extração, transformação e carga em banco de dados.
+O processo aqui narrado é diferente do proposto pelo 
+Departamento de Informática do SUS - DATASUS
+via 
+<a href="ftp://ftp.datasus.gov.br/tabwin/tabwin/Tab415.zip" target="blank">TabWin</a>, 
+cujas **vantagens** são:
+
+- Utilização completa da base de dados
+- Modelagem analítica, isto é, maior possibilidade para transposição dinâmica de dados em formato de cubo.
+- Modelagem para estudos epidemiológicos ecológicos, transversais e longitudinais com o universo completo dos dados administrativos.
+
+Comandos **bash**  principais utilizados:
+
+- listar: *curl url*
+- baixar: *wget url*
+- descompactar dbc para dbf: *wine dbf2dbc.exe arquivo.dbc*
+- converter dbf para csv: *dbview -b arquivo.dbf > arquivo.csv*
+
+Os comandos *curl* e *wget* usualmente são nativos no linux.
+Os comandos *wine* e *dbview* podem ser instalados em distribuições **ubuntu**
+com o comando *apt install*.
+
+Comandos **bash** secundários:
+
+- navegação colunar em arquivo texto: *awk*
+- navegação linear em arquivo texto com busca e substituição: *sed*
+- recuperação de linhas com expressão regular: *grep*
+
+### Código-fonte completo
+
+Recupera os arquivos dbc contidos em uma pasta do diretório FTP
+mantido pelo DATASUS.
+
+```{bash, eval=F, echo=T}
+# echo "sudo apt-get install fdupes weka dbview curl lynx r-cran-rpostgresql r-cran-knitr libpq-dev unixodbc unixodbc-dev odbc-postgresql r-cran-dt wine-stable"
+
+
+# Funções
+
+#* wgetsus: obtém os mil arquivos dbc, respectivos à unidade da federação e competência (mês e ano) dos 41 repositórios do DataSUS e estrutura as pastas locais.
+#* etl1dbc2csv: descompacta arquivo dbc a dbf, converte a csv (arquivo tabulado) formando três arquivos separados para nome dos campos, estrutura e dados.
+#* etl2col: converte cada arquivo csv em 800 mil arquivos coluna contendo o atributo, frequência ou valor.
+#* etl3frqano: concatena arquivos coluna com o código IBGE do município e soma a frequência ou valores por município e ano a partir da data de competência e estado e concatena o partido. Calcula a proporção do atributo por território e calcula a frequência per capta.
+#* etl4atr_5adj: discretiza supervisionadamente cada um dos 80 mil arquivos de frequência ou valor e gera para cada subatributo 200 mil arquivos de matrizes de adjacência de partidos nas linhas e territórios nas colunas. Aqui pode haver uma seleção de atributos (feature selection) quando a discretização apenas categoriza presença ou ausência, visto que onde há mais de duas categorias espera-se maior expressividade dos dados.
+#* etl5adj_6dis: Calcula a distância euclidiana e de cosseno entre vetores de partidos aos pares para cada matriz de adjacência 
+#* etl6dis_7lst: converte as matrizes de distância em lista (arquivo coluna, sendo cada linha um par de partidos), substituindo notação científica por decimal.
+#* etl7lst_8csv: concatena os arquivos coluna conforme diversos critérios (origem do dado - e.g., ambulatorial, hospitalar, óbito, nascidos vivos; ano; métrica de distância - cosseno ou euclidiana; medida - frequência, proporção ou per capta) e gera o arquivo arff para utilização por algoritmos de aprendizado de máquina da ferramenta weka.
+#* etl8arff_9cluster: Estabelece o agrupamento dos pares de partido por meio de algoritmos distintos, variando-se o número de agrupamentos e a métrica de distância (euclidiana e de coseno).
+#* etl9cluster_10kappa: avalia a concordância coocorrência de cada partido no mesmo agrupamento.
+
+# lembre-se de realizar backups periodicos com
+# 
+
+## Extração 
+
+### variáveis globais
+
+#### data, hora, estados
+
+inano=$1 # ano de entrada a partir de 1994
+
+### data em formato aaaammdd_hhmmss
+curdate=$(date '+%Y%m%d_%H%M%S')
+
+### data em formato aaaa-mm-dd
+curdt=$(date '+%Y-%m-%d')
+
+### Código IBGE e siglas das unidades da federação
+ufs="17,TO|12,AC|27,AL|13,AM|16,AP|29,BA|23,CE|53,DF|32,ES|52,GO|21,MA|31,MG|50,MS|51,MT|15,PA|25,PB|26,PE|22,PI|41,PR|33,RJ|24,RN|11,RO|14,RR|43,RS|42,SC|28,SE|35,SP"
+
+### mes com dois dígitos
+mes="01|02|03|04|05|06|07|08|09|10|11|12"
+
+### Ano em formato aa e aaaa
+ano="88,1988|89,1989|90,1990|91,1991|92,1992|93,1993|94,1994|95,1995|96,1996|97,1997|98,1998|99,1999|00,2000|01,2001|02,2002|03,2003|04,2004|05,2005|06,2006|07,2007|08,2008|09,2009|10,2010|11,2011|12,2012|13,2013|14,2014|15,2015|16,2016|17,2017|18,2018|19,2019"
+
+
+## Caminho para o descompactador dbf2dbc.exe.
+## Atenção: os arquivos dbf2dbc.exe e IMPBORL.DLL devem estar na pasta app/
+exe="/home/USUARIO/Dropbox/Documentos/source/rstudio/aux/Tab415/dbf2dbc.exe"
+
+#### partidos políticos
+
+## Sigla dos Partidos políticos.
+tse="DEM|PAN|PCdoB|PDT|PEN|PFL|PHS|PL|PMB|PMDB|PMN|PP|PPB|PPL|PPR|PPS|PR|PRB|PRN|PRONA|PROS|PRP|PRTB|PSB|PSC|PSD|PSDB|PSDC|PSL|PSOL|PST|PT|PTB|PTC|PTdoB|PTN|PV|REDE|SD"
+
+#### tabelas e sistemas disseminados pelo DataSUS
+
+# Subdiretórios, Sistemas, tabelas e estrutura dos arquivos DBC.
+
+# Removeu-se ABOuf,aamm|SIASUS/200801_/Dados/ devido ao erro "Version 48 not supported" após descompactar de dbc para dbf
+
+
+## Diretório raiz dos dados abertos do DataSUS
+url="ftp://ftp.datasus.gov.br/dissemin/publicos/"
+
+
+lst="CIH/200801_201012/Dados/,CIH,CRuf,aamm|CIHA/201101_/Dados/,CIHA,CIHAuf,aamm|CMD/Dados/,CMD,CTuf,aamm|CMD/Dados/,CMD,PRuf,aamm|CNES/200508_/Dados/DC/,CNES,DCuf,aamm|CNES/200508_/Dados/EE/,CNES,EEuf,aamm|CNES/200508_/Dados/EF/,CNES,EFuf,aamm|CNES/200508_/Dados/EP/,CNES,EPuf,aamm|CNES/200508_/Dados/EQ/,CNES,EQuf,aamm|CNES/200508_/Dados/GM/,CNES,GMuf,aamm|CNES/200508_/Dados/HB/,CNES,HBuf,aamm|CNES/200508_/Dados/IN/,CNES,INuf,aamm|CNES/200508_/Dados/LT/,CNES,LTuf,aamm|CNES/200508_/Dados/PF/,CNES,PFuf,aamm|CNES/200508_/Dados/RC/,CNES,RCuf,aamm|CNES/200508_/Dados/SR/,CNES,SRuf,aamm|CNES/200508_/Dados/ST/,CNES,STuf,aamm|SIASUS/199407_200712/Dados/,SIA,PAuf,aamm|SIASUS/200801_/Dados/,SIA,SIA,ABuf,aamm|SIASUS/200801_/Dados/,SIA,ACFuf,aamm|SIASUS/200801_/Dados/,SIA,ADuf,aamm|SIASUS/200801_/Dados/,SIA,AMuf,aamm|SIASUS/200801_/Dados/,SIA,ANuf,aamm|SIASUS/200801_/Dados/,SIA,AQuf,aamm|SIASUS/200801_/Dados/,SIA,ARuf,aamm|SIASUS/200801_/Dados/,SIA,ATDuf,aamm|SIASUS/200801_/Dados/,SIA,BIuf,aamm|SIASUS/200801_/Dados/,SIA,PAuf,aamm|SIASUS/200801_/Dados/,SIA,PSuf,aamm|SIASUS/200801_/Dados/,SIA,SADuf,aamm|SIHSUS/199201_200712/Dados/SIH,RDuf,aamm|SIHSUS/199201_200712/Dados/SIH,RJuf,aamm|SIHSUS/199201_200712/Dados/SIH,SPuf,aamm|SIHSUS/200801_/Dados/,SIH,ERuf,aamm|SIHSUS/200801_/Dados/,SIH,RDuf,aamm|SIHSUS/200801_/Dados/,SIH,RJuf,aamm|SIHSUS/200801_/Dados/,SIH,SPuf,aamm|SIM/CID10/DOFET/,SIM,DOEXT,aa|SIM/CID10/DOFET/,SIM,DOFET,aa|SIM/CID10/DOFET/,SIM,DOINF,aa|SIM/CID10/DOFET/,SIM,DOMAT,aa|SIM/CID10/DORES/,SIM,DOuf,aaaa|SINASC/ANT/DNRES/,SINASC,DNuf,aa|SINASC/NOV/DNRES/,SINASC,DNuf,aaaa|SISPRENATAL/201201_/Dados/,SISPRENATAL,PNuf,aamm"
+
+
+
+
+# Extração
+
+#### lista datasus
+
+# A partir das variáveis de ano, sistema e tabela, lista os arquivos contidos no
+# ftp do DataSUS.
+
+etl01_lista_datasus(){ # lista arquivos DBC do datasus organizando por sistema e tabela
+# total > 200gb
+   touch etl0_lista_datasus.$curdate.csv; rm etl0_lista_datasus.$curdate.csv
+   for lista in $(echo $lst | sed 's/|/\n/g');do
+      echo $lista
+      ur=$(echo $lista | awk -F',' -v u=$url '{print u""$1}')
+      curl $ur | egrep -i "dbc$" | awk '{print $4","$3","$1","$2}' | awk -F'[-,]' '{print $1","$2","$5"-"$3"-"$4","$6}' > tmp01.$curdate.tmp # baixa arquivo
+
+      st=$(echo $lista | awk -F',' '{print $2}')
+      tb=$(echo $lista | awk -F',' '{print $3}')
+      dt=$(echo $lista | awk -F',' '{print $4}')
+
+      # recupera as combinacoes entre tabela, uf, competencia e completa a lista 
+      for uflista in $(echo $ufs | sed 's/|/\n/g');do
+         uf=$(echo $uflista | awk -F',' '{print $2}')
+         tbuf=$(echo $tb | sed "s/uf$/${uf}/g")
+         for anolista in $(echo $ano | sed 's/|/\n/g');do
+            aa=$(echo $anolista | awk -F',' '{print $1}')
+            aaaa=$(echo $anolista | awk -F',' '{print $2}')
+            if [ "$dt" = "aamm" ]; then a=$aa; else if [ "$dt" = "aaaa" ]; then a=$aaaa; fi; fi              
+            for m in $(echo $mes | sed 's/|/\n/g');do            
+            grep -i "^${tbuf}${a}${m}" tmp01.$curdate.tmp  | sed "s/$/,${curdt},${uf},${aaaa},${aaaa}${m},${m},${st},${tb}/g" | sed 's/uf$//g' | awk -v u=$ur '{print $0","u}' >> etl0_lista_datasus.$curdate.csv
+            done # meslista      
+            if [ "$st" = "SIM" ] || [ "$st" = "SINASC" ]; then 
+               grep -i "^${tbuf}${a}" tmp01.$curdate.tmp  | sed "s/$/,${curdt},${uf},${aaaa},${aaaa}${m},${m},${st},${tb}/g" | sed 's/uf$//g' | awk -v u=$ur '{print $0","u}'  >> etl0_lista_datasus.$curdate.csv
+            fi # SIM SINASC
+         done # anolista
+      done # uflista
+   done # lista
+
+   rm tmp*.$curdate.tmp
+   cat <(echo "dbc,tamanho,atualizado,hora,listado,uf,ano,competencia,mes,sistema,tabela,url") <(sort -u etl0_lista_datasus.$curdate.csv) > tmp
+   mv tmp etl0_lista_datasus.$curdate.csv
+   echo "etl0_lista_datasus.$curdate.csv"
+  cp etl0_lista_datasus.$curdate.csv /home/USUARIO/Dropbox/Documentos/source/rstudio/
+}
+
+#### baixa os arquivos por ano
+
+l="/home/USUARIO/Dropbox/Documentos/source/rstudio/etl0_lista_datasus.20190819_203956.csv"
+
+etl02_wgetano(){ # baixa os arquivos dbc por ano a partir da lista gerada pela funcao etl0a_lista_datasus
+   l=$1 # arquivo da lista com o formato CRAC0801.dbc,1325,13-12-18,11:56AM,2018-12-16,AC,2008,200801,01,CIH,CR,ftp://...
+   mkdir -p ../etl02_wgetano.erro # pasta para conter arquivos com erro
+#   for line in $(cat $l | awk -F',' -v a=$a -v s=$st -v t=$tb '{if ($7 == a && $10 == s && $11 == t ) print $0;}' );do
+   for line in $(cat $l );do
+      f=$(echo $line | awk -F',' '{print $1}')
+      u=$(echo $line | awk -F',' '{print $NF}')
+      
+      wget --ignore-case --no-clobber ${u}/${f} # principal: baixa o arquivo dbc
+      
+      # verifica o numero de bytes
+      b1=$(echo $line | awk -F',' '{print $2}')   # numero de bytes do arquivo no ftp
+      b2=$(ls -l $f | awk '{print $5}') # numero de bytes do arquivo baixado
+      
+      if [ "$b1" = "$b2" ]; then # mesmo numero de bytes
+         s=$(echo $line | awk -F',' '{print $10}') # sistema
+         t=$(echo $line | awk -F',' '{print $11}') # tabela  
+         a=$(echo $line | awk -F',' '{print $7}')  # ano
+         c=$(echo $line | awk -F',' '{print $8}')  # competencia
+         u=$(echo $line | awk -F',' '{print $6}')  # uf -> estado
+         mv $f etl02_wgetano.$s.$t.$a.$c.$u.$f # cria uma copia com o prefixo de concatenacao
+      else # numero diferentes de bytes
+         mkdir -p ../etl02_wgetano.erro
+         mv $f ../etl02_wgetano.erro/
+      fi
+   done # line
+   echo "etl02_wgetano 2000 SIA PA etl0_lista_datasus.$curdate.csv"
+}
+
+
+
+buraco(){ # se a saida for vazia, significa que nao ha buracos de arquivos
+  ls | grep -i "\.dbc" > lst.tmp
+  for s in $(cat lst.tmp | awk -F'.' '{print $2}' | sort -u );do
+  for t in $(cat lst.tmp | awk -F'.' -v s=$s '{if ($2 == s) print $3;}' | sort -u );do
+  for u in $(cat lst.tmp | awk -F'.' -v s=$s -v t=$t '{if ($2 == s && $3 == t) print $6;}' | sort -u );do
+    cat lst.tmp | awk -F'.' -v s=$s -v t=$t -v u=$u '{if ($2 == s && $3 == t && $6 == u) print $5;}' > cmplst1.tmp
+    qt=$(wc -l cmplst1.tmp | awk '{print $1}')
+    if [ ! -z "cmplst1.tmp" ]; then
+      t0=$(head -1 cmplst1.tmp)
+      t1=$(tail -1 cmplst1.tmp)
+      # echo "quantidade de arquivos: $s $t $u $qt $t0 $t1"
+
+      if [ "$s" = "SIM" ] || [ "$s" = "SINASC" ]; then
+        seq $t0 $t1 | egrep "12$" > cmplst2.tmp
+      else 
+        seq $t0 $t1 | egrep "01$|02$|03$|04$|05$|06$|07$|08$|09$|10$|11$|12$" > cmplst2.tmp
+     fi
+        grep -v -f cmplst1.tmp cmplst2.tmp | sed "s/^/$s.$t.$u./g" 
+    fi
+  done
+  done  
+  done
+}
+
+buraco_ftp(){ # verifica buracos de arquivos continos no ftp mas nao baixados
+   l=$1 # lista ftp
+   for line in $( buraco );do
+     s=$(echo $line | awk -F'.' '{print $1}')
+     t=$(echo $line | awk -F'.' '{print $2}')
+     u=$(echo $line | awk -F'.' '{print $3}')
+     c=$(echo $line | awk -F'.' '{print $4}')
+     a=$(echo $line | awk -F'.' '{print substr($4,1,4)}')
+     m=$(echo $line | awk -F'.' '{print substr($4,5,2)}')
+     cat $l | grep ",$u,$a,$c,$m,$s,$t," # | awk -F',' -v s=$s -v t=$t -v u=$u -v c=$c '{if ($10 == s && $11 == t && $6 == u && $8 == c) print $0;}'
+   done
+}  
+
+### Transformação
+
+#### descompacta arquivos DBC para DBF
+
+etl03_dbc2dbf(){ # descompacta todos os arquivos dbc para dbf dentro do diretorio
+   for f in $(ls | grep etl02_wgetano | grep -i "\.dbc$");do
+      fdbf=$(echo $f | sed 's/\.DBC$//gI' | awk '{print "ls "$1"* | grep -i DBF"}' | sh)
+      if [ -z "$fdbf" ]; then # verifica se existe arquivo DBF, se nao, descompacta o DBC
+         wine $exe $f
+         fdbf=$(echo $f | sed 's/\.DBC$//gI' | awk '{print "ls "$1"* | grep -i DBF"}' | sh)
+      fi
+      # verifica se o dbf possui o mesmo numero de registros que o dbc
+      r1=$(dbview -i -o $f | grep recs | awk '{print $NF}')
+      r2=$(dbview -i -o $fdbf | grep recs | awk '{print $NF}')
+      echo "$f,$r1,$r2" >> ../etl03_dbc2dbf.$curdate.csv
+
+      if [ "$r1" != "$r2" ]; then # numero diferentes de registros
+         mkdir -p ../etl03_dbc2dbf.erro
+         mv $f ../etl03_dbc2dbf.erro
+         rm $fdbf
+      else
+         rm $f
+      fi
+   done # f
+   echo "$(basename $0): DBC2DBF ../etl03_dbc2dbf.$curdate.csv"
+}
+
+#### transforma DBF para CSV
+
+etl04_dbf2csv(){ # transforma todos os arquivos dbf para csv dentro do diretorio
+   for f in $(ls | grep etl02_wgetano | grep -i "\.dbf$");do
+      ftsv=$(echo $f | sed 's/\.DBF$/\.tsv/gI') # arquivo tabulado de saida
+      fstr=$(echo $f | sed 's/\.DBF$/\.str/gI') # arquivo de estrutura
+      dbview -b $f | sed 's/:/\t/g' > $ftsv # PRINCIPAL 2 - converte dbf em tsv
+      dbview -e -o $f | awk -F'\t' '{ gsub(/[ \t]+$/,"",$1);gsub(" ","_",$1); print tolower($1)","$2","$3}' | sed 1d | sed 's/ //g' | nl | awk '{print $1","$2}' > $fstr
+
+      # verifica se o tsv possui o mesmo numero de registros que o dbf
+      r1=$(dbview -i -o $f | grep recs | awk '{print $NF}')
+      r2=$(wc -l $ftsv | awk '{print $1}')
+      echo "$f,$r1,$r2" >> ../etl04_dbf2csv.$curdate.csv
+
+      if [ "$r1" = "$r2" ]; then # numero igual de registros
+         rm $f
+      else # numero diferentes de registros
+         mkdir -p ../etl04_dbf2csv.erro
+         mv $f ../etl04_dbf2csv.erro
+         rm $fdbf
+      fi
+   done # f
+   echo "$(basename $0): DBF2CSV ../etl04_dbf2csv.$curdate.csv"
+}
+
+### IPCA
+
+# O Índice Nacional de Preços ao Consumidor Amplo - IPCA é utilizado para 
+# deflacionar os valores ao mês corrente ().
+
+# Os valores são obtidos do sítio <http://api.sidra.ibge.gov.br/>.
+
+etl00_ipca(){
+cmp0="199401"
+cmpn=$(lynx -dump http://api.sidra.ibge.gov.br/values/h/n/t/1737/p/last/n1/all/v/63 | grep '"D1C":' | awk -F'"' '{print $(NF-1)}')
+   # baixa o ipca
+   for cmp in $(seq $cmp0 $cmpn | egrep "01$|02$|03$|04$|05$|06$|07$|08$|09$|10$|11$|12$");do
+       ipca=$(lynx -dump http://api.sidra.ibge.gov.br/values/h/n/t/1737/p/$cmp/n1/all/v/2266 | grep '"V":' | awk -F'"' '{print $(NF-1)}')
+       echo "$cmp,$ipca" 
+   done | tac > ipca.tmp # cmp
+   
+   # calcula o fator acumulado para cmpn+1
+   ipca=$(head -1 ipca.tmp | awk -F',' '{print $2}')
+   echo "$cmpn,$ipca,1" > ipca.csv # primeira linha cmp,ipca,acumulado,um_real   
+
+   for line in $(cat ipca.tmp | sed 1d ); do
+      cmp=$(echo $line | awk -F',' '{print $1}')
+      ipca2=$(echo $line | head -1  | awk -F',' '{print $2}')
+      val=$(echo "scale=4; $ipca / $ipca2  " | bc)
+      echo "$cmp,$ipca2,$val" >> ipca.csv
+   done # line
+   cp ipca.csv /home/USUARIO/Dropbox/Documentos/source/rstudio/ipca.csv
+}
+
+
+etl05_concatena_colunar(){ # concatena por coluna genrando arquivo 
+# com a estrutura municipio;procedimento;diagnostico;atributo£quantidade£valor£valoripca£qtapr
+
+   mun1="munpcn|munpac|munres|munic_res|sp_m_pac|mun_res" # municipio do paciente
+   mun2="ufmun|munic|munocor|mun_ubs|munest|sp_m_hosp|mun_mov" # municipio do registro
+   val="pa_valapr|ap_vl_ap|vl_aprov|cob_valap|pa_valpro|pa_vl_cf|pa_vl_inc|val_tot|sp_valato"
+
+   # atributos que nao devem ser computados
+   atrcut="munpcn|munpac|munres|munic_res|_m_pac|mun_res|ufmun|munic|munocor|mun_ubs|munest|_m_hosp|autoriz|cnspcn|_dt|cep|_cmp|dtinvestig|versao|;dt|natural|numerodo|atestado|horaobito|;crm;|numsus|cns_pac|sp_naih|sp_pf_doc|sequencia|nomeprof|cpf_prof|dt_atend|dt_saida|cgc_hosp|pa_mvm|numaih|cns_|cnsprof|agenc|competen|co_uf_ibge|cpf_|cpfunico|crm|dt_acred|dt_admiss|dt_ativa|dt_atual|dtcadastro|dtcadinf|dtcadinv|dtconcaso|dtconinv|dtdeclarac|dt_desat|dt_dpp|dt_dum|dt_exped|dt_fim|dt_inc|dt_inicio|dt_inter|dt_motcob|dt_pnass|dtportar|dt_process|dt_puble|dt_publm|dtrecebim|dtrecorig|dtrecoriga|dtregcart|dtultmenst|endres|gestor_cod|gestor_cpf|hora_amb|horahosp|horanasc|horaoutr|n_aih|nu_ano_ges|nu_cns|pa_cnsmed|pa_datpr|pa_datref|pa_docorig|pa_numapa|s_cpflux|sp_cpfcgc|ap_mvm|,aih,|,ano,|,mes,|uf_zi|remessa|sequencia" 
+
+
+   cid="cidpri|cid10|causabas|co_diagp|diag_princ|pa_cid|pa_cidcas|sp_cidpri" # cid primaria 
+   pro="pripal|pa_codpro|pa_proc_id|prcaih|num_proc|proc_id|proc_rea|sp_num_pr|sp_procrea" # procedimento aprovado
+   qta="qtdapr" # quantidade aprovada
+
+   # arquivo com ipca
+   fipca="/home/USUARIO/Dropbox/Documentos/source/rstudio/ipca.csv"
+
+
+   # para cada aquivo por competencia
+   for ftsv in $(ls | grep "\.tsv$");do
+
+   fstr=$(echo $ftsv | sed 's/\.tsv/.str/g')
+   fout=$(echo $ftsv | awk -F'.' '{print "etl05_concatena_colunar."$2"."$3"."$4}')
+   cmp=$(echo $ftsv | awk -F'.' '{print $5}')
+   uf=$(echo $ftsv | awk -F'.' '{print $6}')
+   ipca=$(grep "^$cmp," $fipca | awk -F',' '{print $NF}' )
+   nul_id=$(tail -1 $fstr | awk -F',' '{print $1+1}')
+
+   # obtem a posicao da coluna do campo do municipio
+   mun_id=$(cat $fstr | egrep "$mun1" | head -1 | awk -F',' '{print $1}')
+   if [ -z "$mun_id" ]; then mun_id=$(cat $fstr | egrep "$mun2" | head -1 | awk -F',' '{print $1}') ; fi
+
+   # obtem as demais posicoes de coluna para os campos chave 
+   val_id=$(cat $fstr | egrep "$val" | head -1 | awk -F',' '{print $1}'); if [ -z "$val_id" ]; then val_id=$nul_id ; fi
+   cid_id=$(cat $fstr | egrep "$cid" | head -1 | awk -F',' '{print $1}'); if [ -z "$cid_id" ]; then cid_id=$nul_id ; fi
+   pro_id=$(cat $fstr | egrep "$pro" | head -1 | awk -F',' '{print $1}'); if [ -z "$pro_id" ]; then pro_id=$nul_id ; fi
+   qta_id=$(cat $fstr | egrep "$qta" | head -1 | awk -F',' '{print $1}'); if [ -z "$qta_id" ]; then qta_id=$nul_id ; fi
+
+
+   if [ ! -z "$mun_id" ]; then
+   # para cada atributo discreto resgata 
+   # municipio procedimento diagnostico atributo quantidade qtapr valor valoripca 
+   # e soma por competencia
+     for line in $(cat $fstr | egrep -v "^$mun_id,|^$val_id,|qt|vl|val|imc|tot|$atrcut|$pro|$cid|$mun2");do
+       id=$(echo $line | awk -F',' '{print $1}')
+       campo=$(echo $line | awk -F',' '{print $2}')
+
+       cat $ftsv | tr -cd '\11\12\15\40-\176' | sed 's/[^a-zA-Z 0-9+\-\.<>?£\t]//g' | awk -F'\t' -v c=$id -v m=$mun_id -v v=$val_id -v d=$cid_id -v p=$pro_id -v q=$qta_id '{if ( $v == 0 ) print $m"¢"$p"¢"$d"¢"substr($c,1,50)"¢0£"$q"£"$v; else print $m"¢"$p"¢"$d"¢"substr($c,1,50)"¢1£"$q"£"$v}' | sort | awk -F "£" '{a[$1]++; b[$1]+=$2; c[$1]+=$3;  } END {for (i in a) print i"£"a[i]"£"b[i]"£"c[i]}' | awk -F'£' -v d=$ipca '{print $0"£"$NF*d}' | sed 's/ £/£/g' | sed 's/ ;/;/g' > $fout.$campo.$uf.$cmp.tmp
+
+     done # line
+   fi #mun_id
+  done #ftsv
+
+  # agrega cada aquivo colunar por ano
+  for line in $(ls | grep "\.tmp$" | cut -d. -f1-6 | sort -u);do
+    cat $line.*.tmp | sort | awk -F "£" '{a[$1]+=$2; b[$1]+=$3; c[$1]+=$4; d[$1]+=$5;  } END {for (i in a) print i"£"a[i]"£"b[i]"£"c[i]"£"d[i]}' > $line.csv
+  done # line
+  rm *.tmp
+}
+
+
+
+etl05_concatena_colunar_geral(){ # concatena por coluna genrando arquivo, desconsiderando o atributo
+# com a estrutura municipio;procedimento;diagnostico;atributo£quantidade£valor£valoripca£qtapr
+
+   mun1="munpcn|munpac|munres|munic_res|sp_m_pac|mun_res" # municipio do paciente
+   mun2="ufmun|munic|munocor|mun_ubs|munest|sp_m_hosp|mun_mov" # municipio do registro
+   val="pa_valapr|ap_vl_ap|vl_aprov|cob_valap|pa_valpro|pa_vl_cf|pa_vl_inc|val_tot|sp_valato"
+
+   # atributos que nao devem ser computados
+#   atrcut="munpcn|munpac|munres|munic_res|_m_pac|mun_res|ufmun|munic|munocor|mun_ubs|munest|_m_hosp|autoriz|cnspcn|_dt|cep|_cmp|dtinvestig|versao|;dt|natural|numerodo|atestado|horaobito|;crm;|numsus|cns_pac|sp_naih|sp_pf_doc|sequencia|nomeprof|cpf_prof|dt_atend|dt_saida|cgc_hosp|pa_mvm|numaih|cns_|cnsprof|agenc|competen|co_uf_ibge|cpf_|cpfunico|crm|dt_acred|dt_admiss|dt_ativa|dt_atual|dtcadastro|dtcadinf|dtcadinv|dtconcaso|dtconinv|dtdeclarac|dt_desat|dt_dpp|dt_dum|dt_exped|dt_fim|dt_inc|dt_inicio|dt_inter|dt_motcob|dt_pnass|dtportar|dt_process|dt_puble|dt_publm|dtrecebim|dtrecorig|dtrecoriga|dtregcart|dtultmenst|endres|gestor_cod|gestor_cpf|hora_amb|horahosp|horanasc|horaoutr|n_aih|nu_ano_ges|nu_cns|pa_cnsmed|pa_datpr|pa_datref|pa_docorig|pa_numapa|s_cpflux|sp_cpfcgc|ap_mvm|,aih,|,ano,|,mes,|uf_zi|remessa|sequencia" 
+
+
+   cid="cidpri|cid10|causabas|co_diagp|diag_princ|pa_cid|pa_cidcas|sp_cidpri" # cid primaria 
+   pro="pripal|pa_codpro|pa_proc_id|prcaih|num_proc|proc_id|proc_rea|sp_num_pr|sp_procrea" # procedimento aprovado
+   qta="qtdapr" # quantidade aprovada
+
+   # arquivo com ipca
+   fipca="/home/USUARIO/Dropbox/Documentos/source/rstudio/ipca.csv"
+
+
+   # para cada aquivo por competencia
+   for ftsv in $(ls | grep "\.tsv$");do
+
+   fstr=$(echo $ftsv | sed 's/\.tsv/.str/g')
+   fout=$(echo $ftsv | awk -F'.' '{print "etl05_concatena_colunar."$2"."$3"."$4}')
+   cmp=$(echo $ftsv | awk -F'.' '{print $5}')
+   uf=$(echo $ftsv | awk -F'.' '{print $6}')
+   ipca=$(grep "^$cmp," $fipca | awk -F',' '{print $NF}' )
+   nul_id=$(tail -1 $fstr | awk -F',' '{print $1+1}')
+
+   # obtem a posicao da coluna do campo do municipio
+   mun_id=$(cat $fstr | egrep "$mun1" | head -1 | awk -F',' '{print $1}')
+   if [ -z "$mun_id" ]; then mun_id=$(cat $fstr | egrep "$mun2" | head -1 | awk -F',' '{print $1}') ; fi
+
+   # obtem as demais posicoes de coluna para os campos chave 
+   val_id=$(cat $fstr | egrep "$val" | head -1 | awk -F',' '{print $1}'); if [ -z "$val_id" ]; then val_id=$nul_id ; fi
+   cid_id=$(cat $fstr | egrep "$cid" | head -1 | awk -F',' '{print $1}'); if [ -z "$cid_id" ]; then cid_id=$nul_id ; fi
+   pro_id=$(cat $fstr | egrep "$pro" | head -1 | awk -F',' '{print $1}'); if [ -z "$pro_id" ]; then pro_id=$nul_id ; fi
+   qta_id=$(cat $fstr | egrep "$qta" | head -1 | awk -F',' '{print $1}'); if [ -z "$qta_id" ]; then qta_id=$nul_id ; fi
+
+
+   if [ ! -z "$mun_id" ]; then
+   # para cada atributo discreto resgata 
+   # municipio procedimento diagnostico atributo quantidade qtapr valor valoripca 
+   # e soma por competencia
+#     for line in $(cat $fstr | egrep -v "^$mun_id,|^$val_id,|qt|vl|val|imc|tot|$atrcut|$pro|$cid|$mun2");do
+#       id=$(echo $line | awk -F',' '{print $1}')
+#       campo=$(echo $line | awk -F',' '{print $2}')
+
+       cat $ftsv | tr -cd '\11\12\15\40-\176' | sed 's/[^a-zA-Z 0-9+\-\.<>?£\t]//g' | awk -F'\t' -v m=$mun_id -v v=$val_id -v d=$cid_id -v p=$pro_id -v q=$qta_id '{if ( $v == 0 ) print $m"¢"$p"¢"$d"¢total¢0£"$q"£"$v; else print $m"¢"$p"¢"$d"¢total¢1£"$q"£"$v}' | sort | awk -F "£" '{a[$1]++; b[$1]+=$2; c[$1]+=$3;  } END {for (i in a) print i"£"a[i]"£"b[i]"£"c[i]}' | awk -F'£' -v d=$ipca '{print $0"£"$NF*d}' | sed 's/ £/£/g' | sed 's/ ;/;/g' > $fout.total.$uf.$cmp.tmp
+
+#     done # line
+   fi #mun_id
+
+  done #ftsv
+
+  # agrega cada aquivo colunar por ano
+  line=$(ls | grep "\.tmp$" | cut -d. -f1-6 | sort -u)
+  cat $line.*.tmp | sort | awk -F "£" '{a[$1]+=$2; b[$1]+=$3; c[$1]+=$4; d[$1]+=$5;  } END {for (i in a) print i"£"a[i]"£"b[i]"£"c[i]"£"d[i]}' > $line.csv
+  rm *.tmp
+}
+
+
+
+# Carga
+
+etl06_csv2pg(){ # incorpora no pgsql
+# arquivos na estrutura 
+# municipio ¢ procedimento ¢ diagnostico ¢ atributo ¢ com valor (1/0) £ quantidade £ qtapr £ valor £ valoripca 
+# 221100¢0604470037¢N180¢160¢1£10£0£545.14£605.616
+
+   dirin="/media/USUARIO/USUARIO128/etl05_concatena_colunar.SIA.PA/"
+
+   touch log.csv; rm log.csv # arquivo para registrar erros
+
+   # elimina os schemas previos e cria
+   for db in $(tree -rf $dirin | grep etl05 | awk -F'/' '{print $NF}' | awk -F'.' '{print "DB_"$2"_"$3}' | grep -v "_$" | sort -u );do
+     sql="drop schema if exists $db CASCADE; 
+          create schema $db;"
+     PGPASSWORD=SENHA psql -U USUARIO -h localhost -d SCHEMA -p 5432 -c "$sql" -q
+     echo "Schema $db eliminado."
+
+   done # db
+
+      sql1="   
+   DROP TABLE IF EXISTS db_aux.teste;
+   CREATE TABLE db_aux.teste (
+     co_municipio_ibge integer not null,
+     sg_uf varchar(2) not null,
+     nu_ano int null,
+     nu_procedimento bigint null,
+     nu_cid  varchar(4) null,
+     atributo varchar(50) null,
+     st_valor int null,
+     qt_registros int null,
+     qt_aprovada int null,
+     vl_bruto numeric(21,3) null,
+     vl_ipca  numeric(21,3) null);
+   CREATE INDEX IF NOT EXISTS idx_TESTE_co_municipio_ibge ON db_aux.teste(co_municipio_ibge);
+   CREATE INDEX IF NOT EXISTS idx_TESTE_nu_ano  ON db_aux.teste(nu_ano);
+   CREATE INDEX IF NOT EXISTS idx_TESTE_nu_procedimento ON db_aux.teste(nu_procedimento);
+   CREATE INDEX IF NOT EXISTS idx_TESTE_nu_cid  ON db_aux.teste(nu_cid); "
+
+   # lista de arquivos processados com a funcao etl05_concatena_colunar
+   touch files.tmp; rm files.tmp # garante que nao ha arquivo de processamento anterior
+   tree -rf $dirin | grep etl05 | awk '{print $NF}' | grep -v "_$" | grep "csv$" | sort > files.tmp
+
+   for line in $(cat files.tmp | awk -F'/' '{print $NF}' | awk -F'.' '{print $2"£"$3"£"$5}' | sort -u);do
+
+     # cria tabela temporaria vazia
+     PGPASSWORD=SENHA psql -U USUARIO -h localhost -d SCHEMA -p 5432 -c "$sql1" 
+
+     d=$(echo $line | awk -F'£' '{print $1}') # banco
+     t=$(echo $line | awk -F'£' '{print $2}') # tabela
+     c=$(echo $line | awk -F'£' '{print $3}') # campo
+
+   echo "Processando DB_${d}_${t}.TB_${d}_${t}__${c}"
+
+   # carga de cada arquivo
+   for f in $(cat files.tmp | grep "\.$d\.$t\." | grep "\.$c\.");do
+
+     a=$(echo $f  | awk -F'/' '{print $NF}' | awk -F'.' '{print $4}')
+     u=$(echo $f  | awk -F'/' '{print $NF}' | awk -F'.' '{print $6}')
+#     db=$(echo $f | awk -F'/' '{print $NF}' | awk -F'.' '{print "DB_"$2"_"$3}')
+#     tb=$(echo $f | awk -F'/' '{print $NF}' | awk -F'.' '{print "TB_"$2"_"$3"__"$5}')
+
+
+     # adapta o arquivo para ser incorporado no postgres
+     touch /tmp/tmp.csv; rm /tmp/tmp.csv
+     cat $f | sort | sed 's/¢/£/g' | sed 's/[^a-zA-Z 0-9+\-\.<>?£]//g' | awk -F'£' -v a=$a -v u=$u '{ print "\"0"substr($1,1,6)"\",\""u"\",\""a"\",\"1"substr($2,1,10)"\",\""substr($3,1,4)"\",\""substr($4,1,50)"\",\""$5"\",\""$6"\",\""$7"\",\""$8"\",\""$9"\""}' | tr -cd '\11\12\15\40-\176' > /tmp/tmp.csv
+
+
+     # incorpora no postgres
+     sql=$(echo "
+          DELETE FROM db_aux.teste WHERE nu_ano='$a' AND sg_uf='$u';
+          COPY db_aux.teste FROM '/tmp/tmp.csv' delimiter ',' csv;")
+     PGPASSWORD=SENHA psql -U USUARIO -h localhost -d SCHEMA -p 5432 -c "$sql" -q
+
+     # qualidade: verifica numero de registros do arquivo e os incorporados
+     qtf=$(wc -l $f | awk '{print $1}')
+     qtd=$(PGPASSWORD=SENHA psql -U USUARIO -h localhost -d SCHEMA -p 5432 -c "SELECT COUNT(*) FROM db_aux.teste WHERE nu_ano='$a' AND sg_uf='$u'" | egrep -v "count|\(|-" | sed 's/ //g')
+
+     echo "Arquivo $f incorporado | Linhas $qtf | Registros $qtd"
+
+     if [ ! "$qtf" = "$qtd" ]; then # registra casos em que houve divergencia. Se a diferenca for de um registro, deve-se a remocao de municipio nulo
+        echo "$db.$tb,$f,$qtf,$qtd" >> log.csv; 
+     fi
+   done # f
+
+   db=$(echo "DB_${d}_${t}")
+   tb=$(echo "TB_${d}_${t}__${c}")
+
+   # query para agregar em quatro anos
+   sql="
+              DROP TABLE IF EXISTS $db.$tb;
+              CREATE TABLE $db.$tb AS
+              select 
+              co_municipio_ibge,
+              case
+                when nu_ano between 1997 and 2000 then 'p1997a2000'
+                when nu_ano between 2001 and 2004 then 'p2001a2004'
+                when nu_ano between 2005 and 2008 then 'p2005a2008'
+                when nu_ano between 2009 and 2012 then 'p2009a2012'
+                when nu_ano between 2013 and 2016 then 'p2013a2016'
+                when nu_ano between 2017 and 2020 then 'p2017a2020'
+              end as st_gestao,
+                nu_procedimento,
+                nu_cid,
+                atributo,
+                st_valor,
+                sum(qt_registros) as qt_registros,
+                sum(qt_aprovada) as qt_aprovada,
+                sum(vl_ipca) as vl_atr
+              from db_aux.teste A 
+              where A.co_municipio_ibge::text not like '53%'
+              group by 1,2,3,4,5,6
+              order by 1,2,5,3,4;
+   DROP TABLE IF EXISTS db_aux.teste;
+   CREATE INDEX IF NOT EXISTS idx_${db}_${tb}_co_municipio_ibge ON $db.$tb(co_municipio_ibge);
+   CREATE INDEX IF NOT EXISTS idx_${db}_${tb}_nu_procedimento ON $db.$tb(nu_procedimento);
+   CREATE INDEX IF NOT EXISTS idx_${db}_${tb}_nu_cid  ON $db.$tb(nu_cid); "
+   PGPASSWORD=SENHA psql -U USUARIO -h localhost -d SCHEMA -p 5432 -c "$sql" -q
+
+   echo "A tabela $db.$tb foi criada."
+
+   done # line
+
+}
+
+
+
+
+
+# Extracao
+
+etl01_lista_datasus # lista dbc
+
+l="/home/USUARIO/Dropbox/Documentos/source/rstudio/etl0_lista_datasus.20190819_203956.csv"
+
+etl02_wgetano $l # baixa dbc
+buraco > ..\buraco.csv # lista buraco
+buraco_ftp $l > ..\buraco.lst.tmp # lista dbc buraco
+etl02_wgetano ..\buraco.lst.tmp  # baixa dbc buraco
+
+# Transformacao
+
+mkdir -p /tmp/tese201908
+cd  /tmp/tese201908 # pasta temporaria no SSD
+
+dirdbc="/home/USUARIO/Downloads/tese201908/etl02_wgetano/"
+dircol="/home/USUARIO/Downloads/tese201908/etl05_concatena_colunar"
+
+s="SIA"
+t="PA"
+
+for line in $(ls $dirdbc | grep etl02_wgetano | awk -F'.' -v s=$s -v t=$t '{ if ($2 == s && $3 == t) print $2"."$3"."$4".*."$6}' | sort -u | sort -h | egrep -v "$(seq 1990 2001 | sed ':a;N;$!ba;s/\n/|/g')" );do
+   
+   touch /tmp/tese201908/x; rm /tmp/tese201908/*
+   cp $dirdbc/*.$line.* .
+   etl03_dbc2dbf
+   etl04_dbf2csv
+
+   # elimina arquivos com zero linhas
+   # lento, porém executa ainda que existam muitos arquivos na pasta
+   ls | awk '{print "qt=$(wc -l "$0"); echo \""$0",$qt\""}' | sh | grep ",0" | awk -F',' '{print "rm "$1}' | sh
+
+   etl05_concatena_colunar
+   mkdir -p "${dircol}.$s.$t"
+   mv *.csv "${dircol}.$s.$t"/
+   rm /tmp/tese201908/*
+done
+
+
+
+
+
+
+
+
+CIH/200801_201012/Dados/,CIH,CRuf,aamm
+CIHA/201101_/Dados/,CIHA,CIHAuf,aamm
+CMD/Dados/,CMD,CTuf,aamm
+CMD/Dados/,CMD,PRuf,aamm
+CNES/200508_/Dados/EE/,CNES,EEuf,aamm
+CNES/200508_/Dados/EF/,CNES,EFuf,aamm
+CNES/200508_/Dados/EP/,CNES,EPuf,aamm
+CNES/200508_/Dados/GM/,CNES,GMuf,aamm
+CNES/200508_/Dados/HB/,CNES,HBuf,aamm
+CNES/200508_/Dados/IN/,CNES,INuf,aamm
+CNES/200508_/Dados/LT/,CNES,LTuf,aamm
+CNES/200508_/Dados/PF/,CNES,PFuf,aamm
+CNES/200508_/Dados/RC/,CNES,RCuf,aamm
+CNES/200508_/Dados/SR/,CNES,SRuf,aamm
+CNES/200508_/Dados/ST/,CNES,STuf,aamm
+SIASUS/199407_200712/Dados/,SIA,PAuf,aamm
+SIASUS/200801_/Dados/,SIA,SIA,ABuf,aamm
+SIASUS/200801_/Dados/,SIA,ACFuf,aamm
+SIASUS/200801_/Dados/,SIA,ADuf,aamm
+SIASUS/200801_/Dados/,SIA,ATDuf,aamm
+SIASUS/200801_/Dados/,SIA,BIuf,aamm
+SIASUS/200801_/Dados/,SIA,PAuf,aamm
+SIASUS/200801_/Dados/,SIA,PSuf,aamm
+SIASUS/200801_/Dados/,SIA,SADuf,aamm
+SIHSUS/199201_200712/Dados/SIH,RDuf,aamm
+SIHSUS/199201_200712/Dados/SIH,RJuf,aamm
+SIHSUS/199201_200712/Dados/SIH,SPuf,aamm
+SIHSUS/200801_/Dados/,SIH,RDuf,aamm
+SIHSUS/200801_/Dados/,SIH,RJuf,aamm
+SIHSUS/200801_/Dados/,SIH,SPuf,aamm
+SIM/CID10/DOFET/,SIM,DOEXT,aa
+SIM/CID10/DOFET/,SIM,DOFET,aa
+SIM/CID10/DOFET/,SIM,DOINF,aa
+SIM/CID10/DOFET/,SIM,DOMAT,aa
+SINASC/ANT/DNRES/,SINASC,DNuf,aa
+SINASC/NOV/DNRES/,SINASC,DNuf,aaaa
+
+
+
+# ENGENHARIA
+
+#-------------------
+# tabelas auxiliares
+#-------------------
+# SCHEMA_aux.td_sigtap
+# SCHEMA_aux.td_cid10
+# SCHEMA_aux.tf_municipio_populacao
+# SCHEMA_aux.tf_uf_populacao
+# SCHEMA_aux.tf_uniao_populacao
+# SCHEMA_aux.td_municipio
+# SCHEMA_aux.tf_tse_gestao
+# db_aux.td_uf
+
+
+
+
+
+
+eng01_quartilgeral(){
+
+dbtb="db_sia_pa.tb_sia_pa__total"
+dbtb=$1
+
+sql="
+-- ----------------quadro geral-----------------------------------------------------------
+drop table if exists db_aux.tmp1;
+create table db_aux.tmp1 as
+select
+  A.co_municipio_ibge,
+  A.st_gestao,
+  G.st_aglomerado,
+  qt_registros::decimal/qt_populacao as qt_reg_hab,
+  G.sg_partido2
+from
+(select 
+  A.co_municipio_ibge,
+  A.st_gestao,
+  sum(qt_registros) as qt_registros
+from $dbtb A
+group by 1,2
+order by 1,2
+) A
+left join SCHEMA_aux.tf_sociopolitico_gestao G on A.co_municipio_ibge=G.co_municipio_ibge and A.st_gestao=G.st_gestao
+where sg_partido2 is not null;
+
+drop table if exists db_aux.tmp2;
+create table db_aux.tmp2 as
+select 
+  st_gestao,
+  st_aglomerado,
+  percentile_cont(0.25) within group (order by qt_reg_hab) as qt_reg_hab_p25,
+  percentile_cont(0.75) within group (order by qt_reg_hab) as qt_reg_hab_p75
+from db_aux.tmp1
+group by 1,2;
+
+drop table if exists db_aux.tmp3;
+create table db_aux.tmp3 as 
+select
+A.*, 
+case when qt_reg_hab <= qt_reg_hab_p25 then 1 else 0 end as q1,
+case when qt_reg_hab between qt_reg_hab_p25 and qt_reg_hab_p75 then 1 else 0 end as q23,
+case when qt_reg_hab >= qt_reg_hab_p75 then 1 else 0 end as q4
+from
+db_aux.tmp1 A
+left join db_aux.tmp2 B on A.st_gestao=B.st_gestao and A.st_aglomerado=B.st_aglomerado;
+
+drop table if exists db_aux.tmp4;
+create table db_aux.tmp4 as
+select 
+  sg_partido2,
+  '00_total________' as segmento,
+  st_gestao,
+  case
+    when st_gestao = 'p1997a2000' then 2000
+    when st_gestao = 'p2001a2004' then 2004
+    when st_gestao = 'p2005a2008' then 2008
+    when st_gestao = 'p2009a2012' then 2012
+    when st_gestao = 'p2013a2016' then 2016
+    when st_gestao = 'p2017a2020' then 2020
+  else null  
+  end as nu_gestao_ano_max,
+  count(*) as qt_municipios,
+  percentile_disc(0.25) within group (order by qt_reg_hab) as qt_reg_hab_q1,
+  percentile_disc(0.5) within group (order by qt_reg_hab) as qt_reg_hab_q2,
+  percentile_disc(0.75) within group (order by qt_reg_hab) as qt_reg_hab_q3,
+  sum(q1) as q1,
+  sum(q23) as q23,
+  sum(q4) as q4,
+  round(sum(q1)::decimal/count(*)*100) as q1p,
+  round(sum(q23)::decimal/count(*)*100) as q23p,
+  round(sum(q4)::decimal/count(*)*100) as q4p
+from db_aux.tmp3
+group by 1,2,3,4
+order by 1,2,3,4;"
+   PGPASSWORD=SENHA psql -U USUARIO -h localhost -d SCHEMA -p 5432 -c "$sql" -q
+}
+
+
+
+
+
+
+
+eng01_quartil_cid_capitulo(){
+
+
+dbtb="db_sia_pa.tb_sia_pa__total"
+
+
+eng01_quartilgeral $dbtb
+
+cid="4,04_metabolica___|5,05_mental_______|13,13_osteomuscular|10,10_respiratorio_|6,06_nervoso______|14,14_geniturinario"
+
+
+curdate=$(date '+%Y%m%d_%H%M%S')
+
+for line in $(echo $cid | sed 's/|/\n/g');do
+
+ cidcap=$(echo $line | awk -F',' '{print $1}') # numero do capitulo da cid
+ cidnom=$(echo $line | awk -F',' '{print $2}') # rotulo
+
+sql="
+-- ----------------capitulo cid------------metabolismo-----------------------------------
+drop table if exists db_aux.tmp1;
+create table db_aux.tmp1 as
+select
+  A.co_municipio_ibge,
+  A.st_gestao,
+  G.st_aglomerado,
+  qt_registros::decimal/qt_populacao as qt_reg_hab,
+  G.sg_partido2
+from
+(
+select 
+co_municipio_ibge,
+st_gestao,
+  sum(qt_registros) as qt_registros
+from $dbtb A
+left join SCHEMA_aux.td_cid10 C on A.nu_cid=C.nu_cid
+where co_capitulo = '$cidcap'
+  group by 1,2
+order by 1,2
+) A
+left join SCHEMA_aux.tf_sociopolitico_gestao G on A.co_municipio_ibge=G.co_municipio_ibge and A.st_gestao=G.st_gestao
+where sg_partido2 is not null;
+
+drop table if exists db_aux.tmp2;
+create table db_aux.tmp2 as
+select 
+  st_gestao,
+  st_aglomerado,
+  percentile_cont(0.25) within group (order by qt_reg_hab) as qt_reg_hab_p25,
+  percentile_cont(0.75) within group (order by qt_reg_hab) as qt_reg_hab_p75
+from db_aux.tmp1
+group by 1,2;
+
+drop table if exists db_aux.tmp3;
+create table db_aux.tmp3 as 
+select
+A.*, 
+case when qt_reg_hab <= qt_reg_hab_p25 then 1 else 0 end as q1,
+case when qt_reg_hab between qt_reg_hab_p25 and qt_reg_hab_p75 then 1 else 0 end as q23,
+case when qt_reg_hab >= qt_reg_hab_p75 then 1 else 0 end as q4
+from
+db_aux.tmp1 A
+left join db_aux.tmp2 B on A.st_gestao=B.st_gestao and A.st_aglomerado=B.st_aglomerado;
+
+-- drop table if exists db_aux.tmp4;
+insert into db_aux.tmp4 
+select 
+  sg_partido2,
+  '$cidnom' as segmento,
+  st_gestao,
+    case
+    when st_gestao = 'p1997a2000' then 2000
+    when st_gestao = 'p2001a2004' then 2004
+    when st_gestao = 'p2005a2008' then 2008
+    when st_gestao = 'p2009a2012' then 2012
+    when st_gestao = 'p2013a2016' then 2016
+    when st_gestao = 'p2017a2020' then 2020
+  else null  
+  end as nu_gestao_ano_max,
+  count(*) as qt_municipios,
+  percentile_disc(0.25) within group (order by qt_reg_hab) as qt_reg_hab_q1,
+  percentile_disc(0.5) within group (order by qt_reg_hab) as qt_reg_hab_q2,
+  percentile_disc(0.75) within group (order by qt_reg_hab) as qt_reg_hab_q3,
+  sum(q1) as q1,
+  sum(q23) as q23,
+  sum(q4) as q4,
+  round(sum(q1)::decimal/count(*)*100) as q1p,
+  round(sum(q23)::decimal/count(*)*100) as q23p,
+  round(sum(q4)::decimal/count(*)*100) as q4p
+from db_aux.tmp3
+group by 1,2,3,4
+order by 1,2,3,4;
+
+create table ${dbtb}_cid_$curdate ( like db_aux.tmp4);
+insert into ${dbtb}_cid_$curdate select * from db_aux.tmp4;
+"
+
+
+  PGPASSWORD=SENHA psql -U USUARIO -h localhost -d SCHEMA -p 5432 -c "$sql" -q
+
+done
+
+}
+
+
+eng01_quartil_proc_capitulo(){
+
+dbtb="db_sia_pa.tb_sia_pa__total"
+
+eng01_quartilgeral $dbtb
+
+sigtap="101,01_Ações_de_promoção_e_prevenção_em_saúde|102,02_Procedimentos_com_finalidade_diagnóstica|103,03_Procedimentos_clínicos|104,04_Procedimentos_cirúrgicos|105,05_Transplantes_de_orgãos,_tecidos_e_celulas|106,06_Medicamentos|107,07_Órteses,_próteses_e_materiais_especiais|108,08_Ações_complementares_da_atenção_à_saúde"
+
+
+curdate=$(date '+%Y%m%d_%H%M%S')
+
+for line in $(echo $sigtap | sed 's/|/\n/g');do
+
+ co_grupo=$(echo $line | awk -F',' '{print $1}') # numero do capitulo da cid
+ nm_grupo=$(echo $line | awk -F',' '{print $2}') # rotulo
+
+sql="
+-- ----------------capitulo cid------------metabolismo-----------------------------------
+drop table if exists db_aux.tmp1;
+create table db_aux.tmp1 as
+select
+  A.co_municipio_ibge,
+  A.st_gestao,
+  G.st_aglomerado,
+  qt_registros::decimal/qt_populacao as qt_reg_hab,
+  G.sg_partido2
+from
+(
+select 
+co_municipio_ibge,
+st_gestao,
+  sum(qt_registros) as qt_registros
+from $dbtb A
+left join SCHEMA_aux.td_cid10 C on A.nu_cid=C.nu_cid
+where substr(nu_procedimento::text,1,3) = '$co_grupo'
+  group by 1,2
+order by 1,2
+) A
+left join SCHEMA_aux.tf_sociopolitico_gestao G on A.co_municipio_ibge=G.co_municipio_ibge and A.st_gestao=G.st_gestao
+where sg_partido2 is not null;
+
+drop table if exists db_aux.tmp2;
+create table db_aux.tmp2 as
+select 
+  st_gestao,
+  st_aglomerado,
+  percentile_cont(0.25) within group (order by qt_reg_hab) as qt_reg_hab_p25,
+  percentile_cont(0.75) within group (order by qt_reg_hab) as qt_reg_hab_p75
+from db_aux.tmp1
+group by 1,2;
+
+drop table if exists db_aux.tmp3;
+create table db_aux.tmp3 as 
+select
+A.*, 
+case when qt_reg_hab <= qt_reg_hab_p25 then 1 else 0 end as q1,
+case when qt_reg_hab between qt_reg_hab_p25 and qt_reg_hab_p75 then 1 else 0 end as q23,
+case when qt_reg_hab >= qt_reg_hab_p75 then 1 else 0 end as q4
+from
+db_aux.tmp1 A
+left join db_aux.tmp2 B on A.st_gestao=B.st_gestao and A.st_aglomerado=B.st_aglomerado;
+
+-- drop table if exists db_aux.tmp4;
+insert into db_aux.tmp4 
+select 
+  sg_partido2,
+  '$nm_grupo' as segmento,
+  st_gestao,
+    case
+    when st_gestao = 'p1997a2000' then 2000
+    when st_gestao = 'p2001a2004' then 2004
+    when st_gestao = 'p2005a2008' then 2008
+    when st_gestao = 'p2009a2012' then 2012
+    when st_gestao = 'p2013a2016' then 2016
+    when st_gestao = 'p2017a2020' then 2020
+  else null  
+  end as nu_gestao_ano_max,
+  count(*) as qt_municipios,
+  percentile_disc(0.25) within group (order by qt_reg_hab) as qt_reg_hab_q1,
+  percentile_disc(0.5) within group (order by qt_reg_hab) as qt_reg_hab_q2,
+  percentile_disc(0.75) within group (order by qt_reg_hab) as qt_reg_hab_q3,
+  sum(q1) as q1,
+  sum(q23) as q23,
+  sum(q4) as q4,
+  round(sum(q1)::decimal/count(*)*100) as q1p,
+  round(sum(q23)::decimal/count(*)*100) as q23p,
+  round(sum(q4)::decimal/count(*)*100) as q4p
+from db_aux.tmp3
+group by 1,2,3,4
+order by 1,2,3,4;
+
+"
+
+  PGPASSWORD=SENHA psql -U USUARIO -h localhost -d SCHEMA -p 5432 -c "$sql" -q
+
+done
+
+sql="create table ${dbtb}_pro_$curdate ( like db_aux.tmp4);
+insert into ${dbtb}_pro_$curdate select * from db_aux.tmp4;"
+
+
+  PGPASSWORD=SENHA psql -U USUARIO -h localhost -d SCHEMA -p 5432 -c "$sql" -q
+
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+## Engenharia 
+
+### Estrutura
+
+# Elenca os arquivos de estrutura obtidos a partir do DBF original,
+# identifica estruturas comuns e completa a lista dos arquivos.
+
+etl05_strigual(){
+   touch etl04str; rm -r etl04str
+   mkdir etl04str; cd etl04str
+   
+   # lista de arquivos dbc
+   lst="/media/USUARIO/USUARIO1tb/Downloads/registrosDBCnSTR.etl0_lista_datasus.20190507_191242.fix.csv"
+   lstout=$(echo $lst | sed 's/\.csv$/\.dupes\.csv/g')
+   dir_in="/media/USUARIO/USUARIO1tb/Downloads/etl04_dbf2csv/"
+
+   # lista arquivos str, copia para a pasta local e descompacta
+   tree -rf  $dir_in | awk '{print $NF}' | grep "\.str" | awk -F'[/]' '{print "cp "$0" .; gunzip "$NF}' | sh
+   
+   # elimina arquivos com zero linhas
+   # lento, porém executa ainda que existam muitos arquivos na pasta
+   ls | awk '{print "qt=$(wc -l "$0"); echo \""$0",$qt\""}' | sh | grep ",0" | awk -F',' '{print "rm "$1}' | sh
+
+   # lista arquivos com a mesma estrutura
+   fdupes -1 . | sed 's/ /|/g' | nl | awk '{print $1","$2}' | sed 's/|$//g' | awk -F',' '{print "echo \""$1","$2"\" | sed \"s/|/\\n"$1",/g\"" }' | sh > ../fdupes.tmp
+
+   # inicia arquivo temporário de saída
+   head -1 $lst | sed 's/$/,str_id,str/g' > ../getstrigual.tmp
+
+   # completa a lista de arquivos com o id e a estrutura
+   for line in $(cat ../fdupes.tmp);do
+      # id do arquivo str
+      strid=$(echo $line | awk -F',' '{print $1}')
+      
+      # primeiro arquivo 
+      file1=$(echo $line | awk -F',' '{print $2}')
+      
+      # estrutura do primeiro arquivo
+      str=$(cat $file1 | sed ':a;N;$!ba;s/\n/|/g' | sed 's/,/;/g')
+      
+      # arquivo dbc
+      filedbc=$(echo $file1 | awk -F'.' '{print $(NF-1)".dbc"}')
+      
+      # alimenta a str
+      echo "$(grep -i "^${filedbc}," $lst | tail -1),$strid,$str" >> ../getstrigual.tmp
+  done  
+  
+   mv ../getstrigual.tmp $lstout
+   echo "$lstout"
+}
+
+### Município
+
+#### adiciona o atributo de município na lista de arquivos.
+
+etl05_define_mun(){
+   # lista contendo o hash dos atributos na ultima coluna
+   lst="/media/USUARIO/USUARIO1tb/Downloads/registrosDBCnSTR.etl0_lista_datasus.20190507_191242.fix.dupes.csv"
+   lstout=$(echo $lst | sed 's/\.csv$/\.mun\.csv/g')
+   mun1="munpcn|munpac|munres|munic_res|sp_m_pac|mun_res" # municipio do paciente
+   mun2="ufmun|munic|munocor|mun_ubs|munest|sp_m_hosp" # municipio do registro
+
+   # inicia arquivo de saída
+   head -1 $lst | sed 's/$/,munid/g' > ../tmp.tmp
+   
+   for line in $(cat $lst);do
+      # estrutura do arquivo
+      str=$(echo $line | awk -F',' '{print $NF}')  
+      
+      # obten o id do atributo do municipio
+      mun=$(echo $line | awk -F',' '{print $NF}' | sed 's/|/\n/g' | egrep "$mun1" | awk -F';' '{print $1}')
+      if [ -z "$mun" ]; then 
+         mun=$(echo $line | awk -F',' '{print $NF}' | sed 's/|/\n/g' | egrep "$mun2" | awk -F';' '{print $1}')
+      fi
+      
+      echo "${line},$mun" >> ../tmp.tmp
+   done # line
+  
+  mv ../tmp.tmp $lstout
+  echo "$lstout"
+}
+
+### Valor
+
+#### adiciona o atributo de valor na lista de arquivos.
+
+etl05_define_val(){
+   # lista contendo o hash dos atributos na ultima coluna
+   lst="/media/USUARIO/USUARIO1tb/Downloads/registrosDBCnSTR.etl0_lista_datasus.20190507_191242.fix.dupes.mun.csv"
+   lstout=$(echo $lst | sed 's/\.csv$/\.val\.csv/g')
+   val1="pa_valapr|ap_vl_ap|vl_aprov|cob_valap|pa_valpro|pa_vl_cf|pa_vl_inc|val_tot|sp_valato"
+
+   # inicia arquivo de saída
+   head -1 $lst | sed 's/$/,valid/g' > ../tmp.tmp
+   
+   for line in $(cat $lst);do
+      # estrutura do arquivo
+      str=$(echo $line | awk -F',' '{print $(NF-1)}')  
+      
+      # obten o id do atributo do municipio
+      val=$(echo $str | sed 's/|/\n/g' | egrep "$val1" | awk -F';' '{print $2";"$1}' | sort | head -1 | awk -F';' '{print $NF}')
+##      if [ -z "$mun" ]; then 
+##         mun=$(echo $line | awk -F',' '{print $NF}' | sed 's/|/\n/g' | egrep "$mun2" | awk -F';' '{print $1}')
+##      fi
+
+      echo "${line},$val" >> ../tmp.tmp
+   done # line
+  
+   mv ../tmp.tmp $lstout
+   echo "$lstout"
+
+}
+
+### Carga
+
+etl05getlst(){
+lst="/media/USUARIO/USUARIO1tb/Downloads/registrosDBCnSTR.etl0_lista_datasus.20190507_191242.fix.dupes.mun.val.csv"
+
+## cria tabela da lista do repositorio
+sql="
+   DROP TABLE IF EXISTS DB_AUX.TA_etl05lst; 
+   
+   CREATE TABLE DB_AUX.TA_etl05lst (
+      dbc varchar(255) NULL, 
+      tamanho integer NULL,
+      atualizado varchar(10) NULL,  
+      hora varchar(10) NULL, 
+      listado date NULL, 
+      uf varchar(2) NULL, 
+      ano integer NULL, 
+      competencia integer NULL,  
+      mes varchar(2) NULL, 
+      sistema varchar(20) NULL, 
+      tabela varchar(20) NULL, 
+      url varchar(255) NULL, 
+      dbclocal varchar(255) NULL, 
+      tsvlocal varchar(255) NULL, 
+      dbclocalreg integer NULL, 
+      tsvlocalreg integer NULL, 
+      str_id integer NULL, 
+      str text NULL, 
+      mun_id integer NULL, 
+      val_id integer
+   );"
+   PGPASSWORD=SENHA psql -U USUARIO -h localhost -d SCHEMA -p 5432 -c "$sql"
+   
+   grep -v "^dbc," $lst | awk -F',' '{ if (NF == 20) print $0}' | awk -F',' '{print "\""$1"\","$2",\""$3"\",\""$4"\","$5",\""$6"\","$7","$8",\""$9"\",\""$10"\",\""$11"\",\""$12"\",\""$13"\",\""$14"\","$15","$16","$17",\""$18"\","$19","$20}' > /home/USUARIO/Downloads/tmp.csv 
+   
+   sql="COPY DB_AUX.TA_etl05lst FROM '/home/USUARIO/Downloads/tmp.csv' delimiter ',' csv;"
+   echo $sql
+   PGPASSWORD=SENHA psql -U USUARIO -h localhost -d SCHEMA -p 5432 -c "$sql"
+}   
+
+### Qualidade
+
+registrosDBCnSTRerro(){
+
+lstout="../registrosDBCnSTR.etl0_lista_datasus.$curdate.csv"
+lstfix="../registrosDBCnSTR.etl0_lista_datasus.$curdate.fix.csv"
+
+   # lista dos arquivos no ftp
+   lst="etl0_lista_datasus.20190507_191242.csv"
+
+   # frequencia de regitros dos arquivos locais
+   lstqt="dissemin.tree.csv" 
+   tree -rf /media/USUARIO/USUARIO1tb/Downloads/dissemin/ | awk '{print $NF}' | grep -i '\.dbc' > $lstqt.dbc
+   tree -rf /media/USUARIO/USUARIO1tb/Downloads/etl04_dbf2csv | awk '{print $NF}' | grep '\.tsv' > $lstqt.tsv
+
+   head -1 $lst | sed 's/$/,dbclocal,tsvlocal,dbclocalreg,tsvlocalreg/g' > $lstout
+
+   # junta os arquivos lst e lst.qt
+   for line in $(cat $lst | sed 1d);do
+      file=$(echo $line | awk -F'[.,]' '{print $1}')
+      filedbc=$(grep -i "/${file}.dbc" $lstqt.dbc | tail -1)
+      filetsv=$(grep -i "\.${file}\." $lstqt.tsv | tail -1)
+
+      if [ ! -z "$filedbc" ]; then
+         # numero de linhas do dbc
+         r1=$(dbview -i -o $filedbc | grep recs | awk '{print $NF}')
+      else # erro no arquivo
+         r1=""
+      fi
+
+      if [ ! -z "$filetsv" ]; then
+         # numero de linhas do tsv
+         r2=$(zcat $filetsv | wc -l |  awk '{print $1}')
+      else # erro no arquivo
+         r2=""
+      fi
+      
+      echo "$line,$filedbc,$filetsv,$r1,$r2" >> $lstout
+
+   done # line
+
+
+   head -1 $lstout > $lstfix
+   cat $lstout | sed 1d | awk -F ',' '{if ( $15 == $16 ) print $0}' >> $lstfix
+
+   # baixa novamente os arquivos onde houve diferenca de registros
+   for line in $(cat $lstout | sed 1d | awk -F ',' '{if ( ! $15 == $16 || $15 == 1 || $13 == "" || $14 == "" ) print $0}');do
+      file=$(echo $line | awk -F'[.,]' '{print $1}')
+      filedbc=$(echo $line | awk -F',' '{print $13}')
+      filetsv=$(echo $line | awk -F',' '{print $14}')
+
+      # principal: baixa o arquivo dbc
+      f=$(echo $line | awk -F',' '{print $1}')  # url
+      u=$(echo $line | awk -F',' '{print $12}') # arquivo dbc
+      wget --ignore-case --no-clobber ${u}/${f} # baixa dbc
+      fdbc=$(ls | grep -i $file | grep -i '\.dbc') # obtem o nome do arquivo dbc local
+
+      # descompacta o arquivo dbc para dbf dentro do diretorio
+      wine $exe $fdbc
+      fdbf=$(ls | grep -i $file | grep -i '\.dbf') # obtem o nome do arquivo dbc local
+
+      # converte dbf em tsv
+      dbview -b $fdbf | sed 's/:/\t/g' | gzip > $filetsv
+      dbview -e -o $fdbf | awk -F'\t' '{ gsub(/[ \t]+$/,"",$1);gsub(" ","_",$1); print tolower($1)","$2","$3}' | sed 1d | sed 's/ //g' | nl | awk '{print $1","$2}' | gzip > $(echo "$filetsv" | sed 's/\.tsv/\.str/g')
+
+      # move o arquivo dcb baixado para a pasta original
+      mv $fdbc $filedbc
+      rm $fdbf
+
+      if [ ! -z "$filedbc" ]; then
+         # numero de linhas do dbc
+         r1=$(dbview -i -o $filedbc | grep recs | awk '{print $NF}')
+      else # erro no arquivo
+         r1=""
+      fi
+
+      if [ ! -z "$filetsv" ]; then
+         # numero de linhas do tsv
+         r2=$(zcat $filetsv | wc -l |  awk '{print $1}')
+      else # erro no arquivo
+         r2=""
+      fi
+
+     echo $line | awk -F',' -v r1=$r2 -v r2=$r2 '{print $1","$2","$3","$4","$5","$6","$7","$8","$9","$10","$11","$12","$13","$14","r1","r2}' >> $lstfix
+
+   done
+
+
+wc -l $lst 
+wc -l $lstout
+wc -l $lstfix
+
+cp $lst $lstout $lstfix /media/USUARIO/USUARIO1tb/Downloads/
+
+
+} # registrosDBCnSTRerro
+
+
+## Processamento 
+
+### Carga
+
+# Agrega arquivos ao ano e incorpora no postgres.
+
+etl06set_ano(){
+   st=$1 # "SIM"
+   tb=$2 # "DO"
+   ano=$3 # 2018
+   
+   # atributos que nao devem ser computados
+   atrcut="munpcn|munpac|munres|munic_res|_m_pac|mun_res|ufmun|munic|munocor|mun_ubs|munest|_m_hosp|autoriz|cnspcn|_dt|_cep|_cmp|dtinvestig|versao|;dt|natural|numerodo|atestado|horaobito|;crm;|numsus|cns_pac|sp_naih|sp_pf_doc|sequencia|nomeprof|cpf_prof" #     municipio do registro"
+
+   # arquivo com ipca
+   fipca="/home/USUARIO/Dropbox/Documentos/source/rstudio/ipca.csv"
+
+
+#sql="SELECT DISTINCT ano FROM DB_AUX.TA_etl05lst where tabela='$tb' AND sistema='$st' AND mun_id > 0 ORDER BY ano"
+#for ano in $(PGPASSWORD=SENHA psql -U USUARIO -h localhost -d SCHEMA -p 5432 -c "$sql" -A -F, -t | cat);do
+
+   sql="SELECT tsvlocal, mun_id, val_id, str, competencia, uf FROM DB_AUX.TA_etl05lst where ano=$ano AND tabela='$tb' AND sistema='$st' AND mun_id > 0 ORDER BY competencia, uf"
+   for line in $(PGPASSWORD=SENHA psql -U USUARIO -h localhost -d SCHEMA -p 5432 -c "$sql" -A -F, -t | cat);do
+      file=$(echo $line | awk -F',' '{print $1}' | sed 's/\/media\/USUARIO\/USUARIO1tb\/Downloads\/etl04_dbf2csv\//\/media\/USUARIO\/USUARIO128\//g')
+      str=$(echo $line | awk -F',' '{print $4}')
+      mun_id=$(echo $line | awk -F',' '{print $2}')
+      mun_cp=$(echo $str | sed 's/|/\n/g' | grep "^$mun_id;" | awk -F';' '{print $2}');
+      
+      val_id=$(echo $line | awk -F',' '{print $3}')
+      if [ -z "$val_id" ]; then 
+         val_id="1000"
+         val_cp="semvl"; 
+      else 
+         val_cp=$(echo $str | sed 's/|/\n/g' | grep "^$val_id;" | awk -F';' '{print $2}');
+      fi
+      
+      cmp=$(echo $line | awk -F',' '{print $5}')
+      uf=$(echo $line | awk -F',' '{print $6}')
+      ipca=$(grep "^$cmp," $fipca | awk -F',' '{print $NF}' )
+
+      # descompacta arquivo no diretorio local   
+      zcat $file > tmp.csv
+
+      # atributos continuos
+      for line2 in $(echo $str | sed 's/|/\n/g' | egrep -v "^$mun_id;|^$val_id;|$atrcut" | egrep "qt|vl|val|imc|tot" );do
+         id=$(echo $line2 | awk -F';' '{print $1}' )
+         campo=$(echo $line2 | awk -F';' '{print $2}' )
+      
+          # gera arquivo com a estrutura municipio;atributo,quantidade,valor,valoripca
+          # marca de forma diferenciada o atributo com registro de valor zerado
+          awk -F'\t' -v c=$id -v m=$mun_id -v v=$val_id -v a=$campo '{if ( $v == 0 ) print $m";"a"zero,"$c","$v; else print $m";"a","$c","$v}' tmp.csv | sort | awk -F "," '{a[$1]++; b[$1]+=$2; c[$1]+=$3 } END {for (i in a) print i","b[i]","c[i]}' | awk -F',' -v d=$ipca '{print $0","$NF*d}' | sed 's/ ,/,/g' | sed 's/ ;/;/g' >> $st.$tb.$campo.$mun_cp.$val_cp.$cmp.$uf.csv  
+          echo "$(date '+%Y%m%d_%H%M%S'): $st.$tb.$campo.$mun_cp.$val_cp.$cmp.$uf.csv"
+      done # line2
+
+      # atributos discretos
+      for line2 in $(echo $str | sed 's/|/\n/g' | egrep -v "^$mun_id;|^$val_id;|qt|vl|val|imc|tot|$atrcut");do
+         id=$(echo $line2 | awk -F';' '{print $1}' )
+         campo=$(echo $line2 | awk -F';' '{print $2}' )
+      
+          # gera arquivo com a estrutura municipio;atributo,quantidade,valor,valoripca
+          # marca de forma diferenciada o atributo com registro de valor zerado
+          awk -F'\t' -v c=$id -v m=$mun_id -v v=$val_id '{if ( $v == 0 ) print $m";"$c"zero,"$v; else print $m";"$c","$v}' tmp.csv | sort | awk -F "," '{a[$1]++; b[$1]+=$2;  } END {for (i in a) print i","a[i]","b[i]}' | awk -F',' -v d=$ipca '{print $0","$NF*d}' | sed 's/ ,/,/g' | sed 's/ ;/;/g' >> $st.$tb.$campo.$mun_cp.$val_cp.$cmp.$uf.csv
+          echo "$(date '+%Y%m%d_%H%M%S'): $st.$tb.$campo.$mun_cp.$val_cp.$cmp.$uf.csv"
+      done # line2
+
+      rm tmp.csv
+   
+   done # line
+
+   # cria schema se nao existir
+   smdb="DB_${st}_${tb}"
+   PGPASSWORD=SENHA psql -U USUARIO -h localhost -d SCHEMA -p 5432 -c "create schema IF NOT EXISTS $smdb;"
+
+   # agrega por ano e arredonda
+   for file in $(ls | grep "^$st.$tb" | awk -F'.' '{print $1"."$2"."$3"."$4"."$5}' | sort -u);do
+      cat $file.*.csv | awk -F',' '{print $1","$2","$4}' | sort | awk -F "," '{a[$1]++; b[$1]+=$2; c[$1]+=$3 } END {for (i in a) print    i","b[i]","c[i]}' | sed 's/;/,/g' | sort | awk -F',' -v a=$ano '{$4=sprintf("%15.f", $4); if ( NF == 4 ) print $1","a","$2","$3","$4}' > /home/USUARIO/Downloads/tmp.csv
+      echo "$(date '+%Y%m%d_%H%M%S'): $file.csv"
+      rm $file.*.csv
+
+      smtb=$(echo $file | awk -F'.' '{print "TF_"$1"_"$2"__"$3"__"$4"__"$5}' )
+   
+      # incorpora no postgres
+      sql="create table IF NOT EXISTS $smdb.$smtb as table DB_AUX.TA_etl07_ano;
+      CREATE INDEX IF NOT EXISTS idx_${smtb}_CO_IBGE ON $smdb.$smtb(CO_MUNICIPIO_IBGE);
+      CREATE INDEX IF NOT EXISTS idx_${smtb}_NU_ANO  ON $smdb.$smtb(NU_ANO);
+      DELETE FROM $smdb.$smtb WHERE nu_ano=$ano;
+      COPY $smdb.$smtb FROM '/home/USUARIO/Downloads/tmp.csv' delimiter ',' csv;"
+      PGPASSWORD=SENHA psql -U USUARIO -h localhost -d SCHEMA -p 5432 -c "$sql"
+   done # file   
+# done # ano
+}
+
+lst="CNES,RC|CNES,SR|CNES,ST|SIA,PA|CNES,PF|CMD,PR"; 
+
+dir="/media/USUARIO/USUARIO128/"
+for line in $(ls $dir | grep _ ); do 
+   ano=$(echo $line | awk -F'_' '{print $NF}'); 
+   st=$(echo $line | awk -F'_' '{print $1}'); 
+   tb=$(echo $line | awk -F'_' '{print $2}'); echo "$st,$tb,$ano"; 
+   rm *
+   etl06set_ano $st $tb $ano 
+done
+
+
+
+for line in $(echo $lst | sed 's/|/\n/g');do 
+st=$(echo $line | awk -F',' '{print $1}'); 
+tb=$(echo $line | awk -F',' '{print $2}'); 
+rm *
+etl06set_ano $st $tb; 
+done
+## 
+## sistemas e tabelas listados
+## SIA,BI|SIA,PS|SIA,SAD|SIH,ER|SIH,RJ|SIH,SP|SIH,RD|SIA,PA|SINASC,DN|SISPRENATAL,PN|CIH,CR|CIHA,CIHA|CMD,CT|CMD,PR|CNES,DC|CNES,EE|CNES,EF|CNES,EP|CNES,EQ|CNES,GM|CNES,HB|CNES,IN|CNES,LT|CNES,PF|CNES,RC|CNES,SR|CNES,ST|SIA,AB|SIA,ACF|SIA,AD|SIA,AM|SIA,AN|SIA,AQ|SIA,AR|SIA,ATD|SIM,DO
+
+# tf_cmd_pr__co_caraten__co_munres__semvl, line 1, column co_municipio_ibge: "     "
+
+
+#### Exemplo de tabela
+
+
+for ano in $(seq 1994 2018);do
+   # extração
+   etl01_lista_datasus
+   etl02_wgetano $ano SIA PA $lst
+
+   # engenharia
+   etl03_dbc2db
+   etl04_dbf2csv
+
+   etl05_strigual
+   etl05_define_mun
+   etl05_define_val
+   etl05setlst
+
+   # processamento   
+   etl06set_ano SIA PA
+done # ano
+
+
+
+
+         s=$(echo $line | awk -F',' '{print $10}') # sistema
+         t=$(echo $line | awk -F',' '{print $11}') # tabela  
+         a=$(echo $line | awk -F',' '{print $7}')  # ano
+         c=$(echo $line | awk -F',' '{print $8}')  # competencia
+         u=$(echo $line | awk -F',' '{print $6}')  # uf -> estado
+
+if ($7 == a && $10 == s && $11 == t ) print $0;
+
+# PROCURA OS BURACOS PARA TENTAR BAIXAR NOVAMENTE
+
+
+```
+

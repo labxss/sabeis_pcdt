@@ -1,0 +1,92 @@
+### Conceituação
+
+Número mensal de usuários pelo percentual de municípios cobertos por estado
+relativo ao Protocolo Clínico e Diretrizes Terapêuticas (PCDT).
+
+### Interpretação
+
+* O eixo horizontal corresponde ao número mensal de usuários em milhões.
+* O eixo vertical corresponde ao percentual de municípios de residência que atendendeu ao menos um usuário para cada estado.
+* Cada quadrante do gráfico corresponde a um cenário.
+	+ O melhor cenário é o quadrante superior à direita, pois corresponde a maior número de usuários/mês e à maior cobertura dentro do estado.
+	+ O pior cenário é situado no quadrante inferior e esquerdo, pois corresponde ao menor número de usuários/mês e à menor cobertura dentro do estado.
+
+### Usos
+
+- Identificar o grau de cobertura do PCDT no estado.
+- Comparar o número de usuários para cada estado.
+
+### Limitações
+
+- Depende da qualidade da informação do município de residência reportada.
+
+### Fonte
+
+- DATASUS/MS - Ministério da Saúde, Departamento de Informática do SUS
+[ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Dados/].
+- IBGE - Instituto Brasileiro de Geografia e Estatística [https://educa.ibge.gov.br/jovens/conheca-o-brasil/populacao/18318-piramide-etaria.html]
+
+### Métodos de Cálculo
+
+Fórmula geral:
+
+$$P_{P}=\frac{n_{P}}{N}$$
+
+onde $P_{P}$ corresponde à proporção de municípios no estado que atenderam ao menos um
+residente,
+$n_{P}$ é o número de municípios atenderam ao menos um residente e 
+$N$ é o número de municípios contidos no estado.
+
+### Categorias Sugeridas para Análise
+
+- Unidade geográfica: região ampliada de saúde e região de saúde.
+- Grau de desenvolvimento socioeconômico em saúde segundo indicadores [Região e Redes](http://indicadores.resbr.net.br/view/).
+
+### Dados Estatísticos e Comentários
+
+Visualizar no painel [SABEIS](https://labxss.shinyapps.io/sabeis_pcdt2/) > Explore.
+
+### Notas
+Realizado conforme metodologia RIPSA. Vide a seção *fonte*.
+
+### Visualização
+
+Gráfico cartesiano.
+
+### Conjunto de dados e Código-fonte
+
+#### Pré-requisitos {-}
+
+Baixe o arquivo **db_sabeis.tf_pcdt_municipio_residencia_cobertura.csv** na pasta
+[dataset](https://github.com/labxss/sabeis_pcdt/tree/master/dataset/csv).
+
+
+#### R script {-}
+
+
+```{r, echo=T}
+tf_pcdt_municipio_residencia=read.csv(file="db_sabeis.tf_pcdt_municipio_residencia_cobertura.csv")
+
+
+    plot(
+      subset(tf_pcdt_municipio_residencia, co_pcdt == 60)$qt_cobertura ~
+        subset(tf_pcdt_municipio_residencia, co_pcdt == 60)$qt_cns_mes_habitante,
+      xlab="usuarios / 1 milhão de habitantes ao mes",
+      ylab="municipios cobertos no estado (%)",
+      col= "white",
+      ylim=c(0,100)
+    )
+
+    text(
+      subset(tf_pcdt_municipio_residencia, co_pcdt == 60)$qt_cobertura ~
+        subset(tf_pcdt_municipio_residencia, co_pcdt == 60)$qt_cns_mes_habitante,
+      labels=subset(tf_pcdt_municipio_residencia, co_pcdt == 60)$sg_uf, cex= 1
+    )
+```
+
+```{r echo=FALSE}
+kable(
+  tf_pcdt_municipio_residencia[9:13,], 
+  caption = "Amostra da tabela de entrada."
+)
+```

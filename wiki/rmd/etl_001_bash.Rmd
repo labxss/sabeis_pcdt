@@ -1,0 +1,91 @@
+Trata-se da ETL a partir do repositório do DATASUS desenvolvida em bash-linux.
+ETL (do inglês, *extract, transform, load*) é um processo automatizável de 
+extração, transformação e carga em banco de dados.
+O processo aqui narrado é diferente do proposto pelo 
+Departamento de Informática do SUS - DATASUS
+via 
+<a href="ftp://ftp.datasus.gov.br/tabwin/tabwin/Tab415.zip" target="blank">TabWin</a>, 
+cujas **vantagens** são:
+
+- Utilização completa da base de dados
+- Modelagem analítica, isto é, maior possibilidade para transposição dinâmica de dados em formato de cubo.
+- Modelagem para estudos epidemiológicos ecológicos, transversais e longitudinais com o universo completo dos dados administrativos.
+
+Comandos **bash**  principais utilizados:
+
+- listar: *curl url*
+- baixar: *wget url*
+- descompactar dbc para dbf: *wine dbf2dbc.exe arquivo.dbc*
+- converter dbf para csv: *dbview -b arquivo.dbf > arquivo.csv*
+
+Os comandos *curl* e *wget* usualmente são nativos no linux.
+Os comandos *wine* e *dbview* podem ser instalados em distribuições **ubuntu**
+com o comando *apt install*.
+
+Comandos **bash** secundários:
+
+- navegação colunar em arquivo texto: *awk*
+- navegação linear em arquivo texto com busca e substituição: *sed*
+- recuperação de linhas com expressão regular: *grep*
+
+### Código-fonte resumido
+
+Recupera os arquivos dbc contidos em uma pasta do diretório FTP
+mantido pelo DATASUS.
+
+```{bash, eval=F, echo=T}
+url="ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/"
+
+curl $url | egrep -i "dbc$" | awk '{print $4","$3","$1","$2}' | awk -F'[-,]' '{print $1","$2","$5"-"$3"-"$4","$6}' > tmp01.csv # baixa arquivo
+```
+
+Baixa cada arquivo dbc listado.
+
+```{bash, eval=F, echo=T}
+for line in $(cat tmp01.csv );do
+   f=$(echo $line | awk -F',' '{print $1}')
+   u=$(echo $line | awk -F',' '{print $NF}')
+      
+   wget --ignore-case --no-clobber ${u}/${f} # principal: baixa o arquivo dbc
+done
+```
+
+
+Descompacta cada arquivo dbc para dbf e converte para csv.
+
+```{bash, eval=F, echo=T}
+# descompactador que vem junto com o tabwin
+# ftp://ftp.datasus.gov.br/tabwin/tabwin/Tab415.zip
+exe="Tab415/dbf2dbc.exe"
+
+# para cada arquivo dbc na pasta local
+for file in $(ls | grep -i "\.dbc$");do
+   # descompacta o arquivo dbc para dbf
+   wine $exe $file 
+   
+   # recupera o nome do arquivo dbf gerado.
+   fdbf=$(echo $file | sed 's/\.DBC$//gI' | awk '{print "ls "$1"* | grep -i DBF"}' | sh)
+   # estabelece o nome do arquivo de saida
+   fcsv=$(echo $fdbf | sed 's/\.DBF$/\.csv/gI')
+   
+   # recupera o arquivo csv
+   dbview -b $fdbf | sed 's/,/;/g' | sed 's/:/,/g' > $fcsv # PRINCIPAL 2 - converte dbf em csv
+   
+   # recupera a estrutura do dbf
+   dbview -e -o $fdbf | awk -F'\t' '{ gsub(/[ \t]+$/,"",$1);gsub(" ","_",$1); print
+done
+```
+
+Carrega arquivo csv no Sistema Gerenciador de Banco de Dados (SGBD) postgresql.
+É desejável que os arquivos sejam estejam na pasta */tmp/* ou outro diretório
+com permissão de acesso para o *psql*.
+
+```{bash, eval=F, echo=T}
+# para cada arquivo csv da pasta tmp
+for file in $(ls | grep -i "\.dbc$");do
+   cp $file /tmp/tmp.csv
+   sql="COPY db_aux.teste FROM '/tmp/tmp.csv' delimiter ',' csv;")
+   PGPASSWORD=SENHA psql -U USUARIO -h localhost -d SCHEMA -p 5432 -c "$sql" -q
+done
+```
+

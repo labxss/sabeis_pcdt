@@ -1,0 +1,127 @@
+### Conceituação
+
+Proporção de usuários de Protocolo Clínico e Diretrizes Terapêuticas - PCDT 
+por faixa-etária e sexo.
+
+### Interpretação
+
+- Expressa uma relação quantitativa entre sexo e faixa-etária em anos.
+- As faixa-etária de cada usuário é obtida a partir do ano de nascimento mais 
+frequente registrado no Sistema de Informação Ambulatorial.
+- Se igual a 100, todos os usuários são homens ou mulheres de uma dada faixa-etária.
+
+### Usos
+
+- Analisar variações na distribuição da população por sexo e faixa-etária.
+- Subsidiar processos de planejamento, gestão e avaliação de políticas públicas de medicamentos.
+- Identificar necessidades de estudos sobre os fatores condicionantes das variações encontradas.
+
+### Limitações
+
+- Trata-se de registros administrativos de informações ambulatoriais, logo, não é
+carantida a informação do ponto de vista do registro civil de cada paciente.
+- A idade é calculada em anos com base no ano de nascimento mais frequente em relação
+ao número de registros no Sistema de Informações Ambulatoriais.
+O cálculo desejável decorreira da data de nascimento.
+
+
+### Fonte
+
+- DATASUS/MS - Ministério da Saúde, Departamento de Informática do SUS
+[ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Dados/].
+- IBGE - Instituto Brasileiro de Geografia e Estatística [https://educa.ibge.gov.br/jovens/conheca-o-brasil/populacao/18318-piramide-etaria.html]
+- RIPSA - Rede Intergerencial de Informações em Saúde. Razão de sexos [http://fichas.ripsa.org.br/2012/a-2/?l=pt_BR]
+
+### Métodos de Cálculo
+
+Fórmula geral:
+
+$$P_{SF} \frac{n_{SF}}{T}\times 100$$
+
+onde $P_{SF}$ é a proporção da respectiva combinação de sexo $S$ e 
+faixa-etária $F$, cujos domínios são, respectivamente
+
+$$S=\{feminino, masculino\}$$
+
+$$F=\left \{\begin{array}{ccccc}
+00-04 & 05-09 & 10-14 & 15-19 & 20-24\\ 
+25-29 & 30-34 & 35-39 & 40-44 & 45-49\\
+50-54 & 55-59 & 60-64 & 65-69 & 70-74\\
+75-79 & 80-84 & 85-89 & 90+   &
+\end{array} \right \}$$
+
+$n_{SF}$ é o número de usuários do sexo e da faixa etária 
+e $T$ é o total de usuários do PCDT, obtido por $T=\sum{n_{SF}}$.
+
+
+### Categorias Sugeridas para Análise
+
+- Unidade geográfica: Brasil, Grandes Regiões, Estados, Distrito Federal e Regiões Metropolitanas.
+- Município de residência
+- Medicamento
+
+### Dados Estatísticos e Comentários
+
+Visualizar no painel [SABEIS](https://labxss.shinyapps.io/sabeis_pcdt2/) > Explore.
+
+### Notas
+
+Realizado conforme metodologia RIPSA. Vide a seção *fonte*.
+
+### Visualização
+
+Pirâmide etária.
+
+### Conjunto de dados e Código-fonte
+
+#### Pré-requisitos {-}
+
+Baixe o arquivo **db_sabeis.tf_pcdt_paciente.csv** na pasta
+[dataset](https://github.com/labxss/sabeis_pcdt/tree/master/dataset/csv).
+
+Certifique-se de que os pacotes R abaixo estejam instalados.
+
+```{r, echo=T}
+library(pyramid)
+```
+
+
+#### R script {-}
+
+Lê arquivo csv e ajusta para o formato percentual.
+
+Ajuste o caminho do arquivo para o diretório onde baixou.
+
+Plota a pirâmide etária com o pacote 
+[pyramid](https://cran.r-project.org/web/packages/pyramid/pyramid.pdf).
+
+Observe o filtro **co_pcdt**, o qual extrai dados apenas para um PCDT.
+
+```{r, echo=T}
+tf_pcdt_paciente = read.csv(file = 'db_sabeis.tf_pcdt_paciente.csv')
+
+# ajusta para o formato percentual
+tf_pcdt_paciente$qt_paciente_m = 
+  tf_pcdt_paciente$qt_paciente_m/tf_pcdt_paciente$qt_registros_pcdt*100
+
+tf_pcdt_paciente$qt_paciente_f = 
+  tf_pcdt_paciente$qt_paciente_f/tf_pcdt_paciente$qt_registros_pcdt*100
+
+pyramid(
+      subset(tf_pcdt_paciente, co_pcdt == 10)[,c(2,3,6)],
+      Llab="Masculino",Rlab="Feminino",
+      Lcol="navy",
+      Ldens=5,
+      Rcol="red",
+      Rdens=10, GL=FALSE, Clab = "Idade", main = "usuários (%)"
+    )
+
+```
+
+```{r echo=FALSE}
+kable(
+  tf_pcdt_paciente[9:13,c(2,3,6)], 
+  caption = "Amostra da tabela de entrada."
+)
+```
+

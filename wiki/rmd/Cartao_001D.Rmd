@@ -1,0 +1,100 @@
+### Conceituação
+
+Proporção de usuários por habitante segundo o Protocolo Clínico e Diretrizes Terapêuticas (PCDT) e estado de residência.
+
+### Interpretação
+
+- As cores e linhas espessas distinguem os estados e distrito federal.
+- Cada célula tem tamanho porporcional ao número de usuários por habitante segundo o senso 2010 atendidos mensalmente.
+- Os estados que mais atendem seus habitantes estão localizados mais à esquerda.
+
+### Usos
+
+- Comparar o grau de cobertura do estado.
+- Verificar quais são as doenças com PCDT mais atendidas
+
+### Limitações
+
+- São listadas apenas os 6 PCDT mais frequentes para cada estado em número de usuários. 
+- A categoria "outros" é a soma do número de usuários a partir do sétimo PCDT.
+- Não é possível visualizar os PCDT de estados com menor atendimento por habitante.
+- Não aparece o percentual que cada célula representa para o estado.
+- Não aparece o percentual que cada estado representa para o país.
+- A população adotada foi a do senso 2010.
+
+### Fonte
+
+- DATASUS/MS - Ministério da Saúde, Departamento de Informática do SUS
+[ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Dados/].
+- IBGE - Instituto Brasileiro de Geografia e Estatística [https://educa.ibge.gov.br/jovens/conheca-o-brasil/populacao/18318-piramide-etaria.html]
+
+### Métodos de Cálculo
+
+Fórmula geral:
+
+$$P_{EP}=\frac{n_{EP}}{N_E \Delta t}$$
+
+onde $P_{EP}$ é a proporção de usuários por unidade de tempo segundo o estado $E$ e o
+PCDT $P$,
+$n_{EP}$ é o número de usuários no estado do PCDT, 
+$N_E$ é a população total do estado e
+$\Delta t$ é o intervalo de tempo, no caso, calculado com
+$$\Delta t$ = max(mes)-min(mes)$.
+
+### Categorias Sugeridas para Análise
+
+- Unidade geográfica: estado, região ampliada de saúde e região de saúde.
+- Demembramento da categoria "outros" nos demais PCDT.
+
+### Dados Estatísticos e Comentários
+
+Visualizar na página principal do [SABEIS](https://labxss.shinyapps.io/sabeis_pcdt2/).
+
+### Notas
+
+Realizado conforme metodologia RIPSA. Vide a seção *fonte*.
+
+### Visualização
+
+Mapa de árvore em retângulos.
+
+### Conjunto de dados e Código-fonte
+
+#### Pré-requisitos {-}
+
+Baixe o arquivo **db_sabeis.tf_pcdt_cns.csv** na pasta
+[dataset](https://github.com/labxss/sabeis_pcdt/tree/master/dataset/csv).
+
+Certifique-se de que os pacotes R abaixo estejam instalados.
+
+```{r, echo=T}
+library(treemap)
+library(knitr)
+```
+
+
+#### R script {-}
+
+Plota o mapa de árvore com o pacote 
+[treemap](https://cran.r-project.org/web/packages/treemap/treemap.pdf).
+
+
+```{r, include = TRUE, echo=T}
+library(treemap)
+
+tf_pcdt_cns = read.csv(file="db_sabeis.tf_pcdt_cns.csv")
+
+treemap(tf_pcdt_cns,
+            index=c("sg_uf","no_pcdt"),
+            vSize="qt_cns_mes",
+            type="index",
+            title=""
+    )
+```
+
+```{r echo=FALSE}
+kable(
+  tf_pcdt_cns[9:13,], 
+  caption = "Amostra da tabela de entrada."
+)
+```

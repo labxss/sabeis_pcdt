@@ -1,0 +1,108 @@
+### Conceituação
+
+Mercado compartilhado entre medicamentos (Market Share), isto é, 
+percentual de usuários por medicamento a cada ano relativo ao
+Protocolo Clínico e Diretrizes Terapêuticas (PCDT).
+
+### Interpretação
+
+- Cada medicamento é assinalado com uma cor diferente e respectiva abreviatura, observada em tabela anexa.
+- Cada barra horizontal corresponde a um ano.
+- Os números dentro das barras horizontais corresponde ao percentual de usuários de cada medicamento.
+
+### Usos
+
+- Verificar o padrão de atendimento no Sistema Único de Saúde SUS.
+- Identificar os impactos de uma nova tecnologia no percentual de usuários.
+- Subsidiar o cálculo de impacto orçamentário.
+
+### Limitações
+
+- Pode haver a utilização concomitante de medicamentos.
+- Medicamentos de nichos diferentes de mercado podem estar sendo visto erroneamente no mesmo conjunto.
+
+### Fonte
+
+- DATASUS/MS - Ministério da Saúde, Departamento de Informática do SUS
+[ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Dados/].
+- IBGE - Instituto Brasileiro de Geografia e Estatística [https://educa.ibge.gov.br/jovens/conheca-o-brasil/populacao/18318-piramide-etaria.html]
+
+### Métodos de Cálculo
+
+Fórmula geral:
+
+$$P_{MAP}=\frac{n_{MAP}}{N_{AP}}$$
+
+onde $P_{MAP}$ é a proporção de usuários do medicamento ao ano por PCDT,
+n_{MAP} é o número de usuários do medicamento ao ano por PCDT e
+N_{AP} é o número de usuários ao ano por PCDT.
+
+### Categorias Sugeridas para Análise
+
+- Classificação Anatômico-químico-terapêutica (ATC)
+- Forma de Organização da SIGTAP - Sistema de Gerenciamento da Tabela de Procedimentos, Medicamentos e OPM do SUS.
+- Avaliar o perfil da geral do medicamento em outros PCDT.
+- Estabelecer filtros segundo o nicho de mercado.
+
+### Dados Estatísticos e Comentários
+
+Visualizar no painel [SABEIS](https://labxss.shinyapps.io/sabeis_pcdt2/) > Explore.
+
+### Notas
+Realizado conforme metodologia RIPSA. Vide a seção *fonte*.
+
+### Visualização
+
+Barra horizontais.
+
+### Conjunto de dados e Código-fonte
+
+#### Pré-requisitos {-}
+
+Baixe o arquivo **db_sabeis.tf_pcdt_paciente.csv** na pasta
+[dataset](https://github.com/labxss/sabeis_pcdt/tree/master/dataset/csv).
+
+Certifique-se de que os pacotes R abaixo estejam instalados.
+
+```{r, echo=T}
+library(ggplot2)
+```
+
+
+#### R script {-}
+
+
+Lê arquivo csv e ajusta para o formato percentual.
+
+Ajuste o caminho do arquivo para o diretório onde baixou.
+
+Plota a pirâmide etária com o pacote 
+[ggplot2](https://cran.r-project.org/web/packages/ggplot2/ggplot2.pdf).
+
+
+```{r, echo=T}
+  tf_pcdt_produto_ano          = read.csv(file = 'db_sabeis.tf_pcdt_produto_ano_outros.csv')
+  tf_pcdt_produto_ano$nu_ano_competencia = as.factor(tf_pcdt_produto_ano$nu_ano_competencia)
+  tf_pcdt_produto_ano$qt_cns_paciente_percentual = round(tf_pcdt_produto_ano$qt_cns_paciente_percentual)
+
+    ggplot(
+      subset(tf_pcdt_produto_ano, co_pcdt==10),
+      aes(
+        fill=sg_procedimento,
+        y=qt_cns_paciente_percentual,
+        x=nu_ano_competencia,
+        label = qt_cns_paciente_percentual
+      )
+    ) + geom_bar(stat="identity") +
+      xlab('ano') +
+      ylab('usuários (%)') +
+      geom_text(size = 3, position = position_stack(vjust = 0.5)) +
+      coord_flip() +
+      theme(
+        legend.text=element_text(size=rel(1.3)),
+        axis.title.x = element_text(size=rel(1.3)),
+        axis.title.y = element_text(size=rel(1.3)),
+        axis.text.x = element_text(size=rel(1.3)),
+        axis.text.y = element_text(size=rel(1.3))
+      )
+```

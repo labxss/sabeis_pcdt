@@ -1,0 +1,96 @@
+### Conceituação
+
+Número de usuários novos por trimestre para cada diagnóstico relativo ao
+Protocolo Clínico e Diretrizes Terapêuticas (PCDT).
+
+### Interpretação
+
+- Cada linha corresponde ao número de usuários novos de PCDT de uma dada doença segundo a Clasificação Internacional de Doenças (CID-10).
+- Se horizontal, significa que a carga de novos usuários é estável.
+- Se inclinada para cima significa que está havendo melhoria no sistema de saúde por meio do tratamento de demanda reprimida ou pode se tratar de um iminente surto.
+- Se inclinada para baixo pode significar mudança no padrão de diagnóstico ou cura da doença.
+- O eixo vertical ($y$) corresponde ao número de usuários.
+- O eixo horizontal ($x$) corresponde ao trimestre.
+
+### Usos
+
+- Verificar a tendência de novos casos da doença tratada via PCDT.
+
+### Limitações
+
+- Trata-se de dados administrativos e não epidemiológicos. Logo, não é possível falar em "incidência da doença no território brasileiro", mas apenas de "novos casos tratados via PCDT no SUS".
+
+### Fonte
+
+- DATASUS/MS - Ministério da Saúde, Departamento de Informática do SUS
+[ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Dados/].
+- IBGE - Instituto Brasileiro de Geografia e Estatística [https://educa.ibge.gov.br/jovens/conheca-o-brasil/populacao/18318-piramide-etaria.html]
+
+### Métodos de Cálculo
+
+Trata-se apenas de filtros relativos ao PCDT e ao trimestre segundo a primeira
+data de tratamento do usuário.
+
+
+### Categorias Sugeridas para Análise
+
+- Unidade geográfica: estado, região ampliada de saúde e região de saúde.
+- Avaliar o perfil da geral da doença tratada por outros PCDT.
+- Realizar projeção com métodos estatísticos do tipo ARIMA.
+
+### Dados Estatísticos e Comentários
+
+Visualizar no painel [SABEIS](https://labxss.shinyapps.io/sabeis_pcdt2/) > Explore.
+
+### Notas
+
+Realizado conforme metodologia RIPSA. Vide a seção *fonte*.
+
+### Visualização
+
+Gráfico cartesiano de linhas.
+
+### Conjunto de dados e Código-fonte
+
+#### Pré-requisitos {-}
+
+Baixe o arquivo **db_sabeis.tf_pcdt_doenca_trimestre.csv** na pasta
+[dataset](https://github.com/labxss/sabeis_pcdt/tree/master/dataset/csv).
+
+Certifique-se de que os pacotes R abaixo estejam instalados.
+
+```{r, echo=T, include=TRUE}
+library(ggplot2)
+```
+
+#### R script {-}
+
+Lê arquivo csv e ajusta para o formato percentual.
+
+Ajuste o caminho do arquivo para o diretório onde baixou.
+
+Plota a pirâmide etária com o pacote 
+[ggplot2](https://cran.r-project.org/web/packages/ggplot2/ggplot2.pdf).
+
+
+
+```{r, echo=T}
+  tf_pcdt_doenca_trimestre=read.csv(file="db_sabeis.tf_pcdt_doenca_trimestre.csv")
+  tf_pcdt_doenca_trimestre$nu_trimestre = as.factor(tf_pcdt_doenca_trimestre$nu_trimestre)
+  names(tf_pcdt_doenca_trimestre)[names(tf_pcdt_doenca_trimestre) == "co_cid10_diagnostico_principal"] <- "CID10"
+
+ggplot(
+      subset(tf_pcdt_doenca_trimestre, co_pcdt == 10 & co_seq_pcdt_cid10_trimestre > 1),
+      aes(
+        x=nu_trimestre, y=qt_cns_paciente, group=CID10, color=CID10
+      )) +
+      geom_line() +
+      labs(y = "usuários novos", x = "trimestre") +
+      theme(
+        legend.text=element_text(size=rel(1.3)),
+        axis.title.x = element_text(size=rel(1)),
+        axis.title.y = element_text(size=rel(1.3)),
+        axis.text.x = element_text(angle = 45, hjust = 1, size=rel(1)),
+        axis.text.y = element_text(size=rel(1.3))
+      )
+```

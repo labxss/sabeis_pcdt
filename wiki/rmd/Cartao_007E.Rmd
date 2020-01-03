@@ -1,0 +1,93 @@
+### Conceituação
+
+Densidade e distribuição espacial do número de estabelecimentos por estado no ano
+segundo o
+Cadastro Nacional de Estabelecimentos de Saúde - CNES 
+relativo ao Protocolo Clínico e Diretrizes Terapêuticas (PCDT).
+
+### Interpretação
+
+- Os territórios onde mais estabelecimentos realizaram procedimento PCDT são assinalados com cores mais escuras.
+- Os territórios em branco não realizaram procedimento no PCDT e ano selecionados.
+
+### Usos
+
+- Identificar o grau de acesso a medicamentos por estado.
+- Verificar o grau de efetivação da política relacionada ao PCDT.
+
+### Limitações
+
+- Nem todos os estados cadastram um registro CNES para cada estabelecimento onde é realizado o procedimento.
+
+### Fonte
+
+- DATASUS/MS - Ministério da Saúde, Departamento de Informática do SUS
+[ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Dados/].
+- IBGE - Instituto Brasileiro de Geografia e Estatística [https://educa.ibge.gov.br/jovens/conheca-o-brasil/populacao/18318-piramide-etaria.html]
+
+### Métodos de Cálculo
+
+Não há cálculo, apenas a aplicação de filtros.
+
+### Categorias Sugeridas para Análise
+
+- Unidade geográfica: região ampliada de saúde e região de saúde.
+- Grau de desenvolvimento socioeconômico em saúde segundo indicadores [Região e Redes](http://indicadores.resbr.net.br/view/).
+
+
+### Dados Estatísticos e Comentários
+
+Visualizar no painel [SABEIS](https://labxss.shinyapps.io/sabeis_pcdt2/) > Explore.
+
+### Notas
+Realizado conforme metodologia RIPSA. Vide a seção *fonte*.
+
+### Visualização
+
+Gráfico de calor em mapa.
+
+### Conjunto de dados e Código-fonte
+
+#### Pré-requisitos {-}
+
+Baixe o arquivo **tf_pcdt_estabelecimento_uf_ano** na pasta
+[dataset](https://github.com/labxss/sabeis_pcdt/tree/master/dataset/csv).
+
+
+Baixe o arquivo **BRUFE250GC_SIR* ** na pasta
+[dataset](https://github.com/labxss/sabeis_pcdt).
+
+
+Certifique-se de que os pacotes R abaixo estejam instalados.
+
+```{r, echo=T, warning=F, message=F}
+library(gdalUtils)
+library(rgdal)
+library(sp)
+
+library(dplyr) # para consultas análogas ao SQL
+```
+
+
+#### R script {-}
+
+```{r, echo=T, warning=F, message=F}
+shp <- readOGR(".", "BRUFE250GC_SIR", stringsAsFactors=FALSE, encoding="UTF-8")
+  tf_pcdt_estabelecimento_uf=read.csv(file="db_sabeis.tf_pcdt_estabelecimento_uf.csv")
+
+  tf_pcdt_estabelecimento_uf_ano = tf_pcdt_estabelecimento_uf %>%
+    group_by(co_pcdt, nu_ano_competencia) %>%
+    summarise(a_sum=sum(qt_cnes_estabelecimento))
+
+shp@data$Y = subset(tf_pcdt_estabelecimento_uf, co_pcdt == 10 & nu_ano_competencia == 2018)$qt_cnes_estabelecimento[match(shp@data$CD_GEOCUF, subset(tf_pcdt_estabelecimento_uf, co_pcdt == 10 & nu_ano_competencia == 2018)$co_uf_ibge_estabelecimento)]
+    spplot(shp, "Y",  col.regions=grey.colors(n=100, start = 1, end = 0))
+```
+
+
+
+```{r echo=FALSE}
+kable(
+  tf_pcdt_estabelecimento_uf[9:13,], 
+  caption = "Amostra da tabela de entrada."
+)
+```
