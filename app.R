@@ -47,7 +47,7 @@ ui <- dashboardPage(
       # p("Sala Aberta de Inteligência em Saúde"),
 
       menuItem(
-        'Página inicial - PCTD ',
+        'Página inicial - PCDT ',
         tabName = 'panorama',
         icon = icon('home')
       ), # menuItem panorama
@@ -58,7 +58,8 @@ ui <- dashboardPage(
       selectizeInput(
         inputId = 'inPCDT',
         label = 'Escolha um PCDT',
-        choices=c('selecione'=0, 'Acne'=1, 'Acromegalia'=2, 'Anemia Aplástica'=3, 'Anemia Hemolítica Autoimune'=4, 'Anemia na Insuficiência Renal Crônica'=5, 'Anemia por Deficiência de Ferro'=80, 'Angioedema Hereditário'=6, 'Aplasia Pura Adquirida Crônica da Série Vermelha'=7, 'Artrite Psoríaca'=8, 'Artrite Reativa - Doença de Reiter'=9, 'Artrite Reumatoide'=10, 'Asma'=11, 'Comportamento Agressivo no Transtorno de Espectro do Autismo'=12, 'Deficiência de Hormônio do Crescimento'=13, 'Dermatomiosite e Polimiosite'=14, 'Diabetes Insípido'=15, 'Diabetes Mellitus Tipo 1'=81, 'Dislipidemia'=16, 'Distonias Focais e Espasmo Hemifacial'=17, 'Doença de Alzheimer'=18, 'Doença de Crohn'=19, 'Doença de Gaucher'=20, 'Doença de Paget - Osteíte Deformante'=21, 'Doença de Parkinson'=22, 'Doença de Wilson'=23, 'Doença Falciforme'=24, 'Doença pelo HIV Resultando em Outras Doenças'=25, 'Doença Pulmonar Obstrutiva Crônica'=26, 'Dor Crônica'=27, 'Endometriose'=28, 'Epilepsia'=29, 'Esclerose Lateral Amiotrófica'=30, 'Esclerose Múltipla'=31, 'Esclerose Sistêmica'=32, 'Espasticidade'=33, 'Espondilite Ancilosante'=34, 'Espondilopatia Inflamatória'=35, 'Esquizofrenia'=36, 'Fenilcetonúria'=37, 'Fibrose Cística'=38, 'Glaucoma'=39, 'Hemangioma'=40, 'Hepatite Autoimune'=41, 'Hepatite B e Coinfecções'=42, 'Hepatite C e Coinfecções'=43, 'Hiperfosfatemia na Insuficiência Renal Crônica'=44, 'Hiperplasia adrenal congênita'=45, 'Hiperprolactinemia'=46, 'Hipertensão Arterial Pulmonar'=47, 'Hipoparatireoidismo'=48, 'Ictioses Hereditárias'=49, 'Imunodeficiência Primária'=50, 'Insuficiência Adrenal Primária - Doença de Addison'=51, 'Insuficiência Pancreática Exócrina'=52, 'Leiomioma de Útero'=53, 'Lúpus Eritrematoso Sistêmico'=54, 'Miastenia Gravis'=55, 'Mucopolissacaridose do tipo I'=82, 'Mucopolissacaridose do tipo II'=83, 'Neutropenia'=56, 'Osteodistrofia Renal'=57, 'Osteoporose'=58, 'Profilaxia da Reinfecção pelo Vírus da Hepatite B Pós-Transplante Hepático'=59, 'Psoríase'=60, 'Puberdade Precoce Central'=61, 'Púrpura Trombocitopênica Idiopática'=62, 'Raquitismo e Osteomalácia'=63, 'Retocolite Ulcerativa'=64, 'Síndrome de Guillain-Barré'=65, 'Síndrome de Ovários Policísticos e Hirsutismo'=66, 'Síndrome de Turner'=67, 'Síndrome Nefrótica'=68, 'Síndromes Coronarianas Agudas'=69, 'Sobrecarga de Ferro'=70, 'Transplante Cardíaco'=71, 'Transplante de Coração e Pulmão'=72, 'Transplante de Medula ou Pâncreas'=73, 'Transplante de Pulmão'=74, 'Transplante Hepático'=75, 'Transplante Renal'=76, 'Transtorno Afetivo Bipolar do Tipo I'=77, 'Transtorno Esquizoafetivo'=78, 'Uveítes Posteriores Não Infecciosas'=79)
+        choices=c('Acne'=1, 'Acromegalia'=2, 'Anemia Aplástica'=3, 'Aplasia Pura Adquirida Crônica da Série Vermelha'=7, 'Artrite Psoríaca'=8, 'Artrite Reumatoide'=10, 'Asma'=11, 'Comportamento Agressivo no Transtorno de Espectro do Autismo'=12, 'Dermatomiosite e Polimiosite'=14, 'Diabetes Insípido'=15, 'Dislipidemia'=16, 'Distonias Focais e Espasmo Hemifacial'=17, 'Doença de Crohn'=19, 'Doença de Parkinson'=22, 'Doença de Wilson'=23, 'Doença Falciforme'=24, 'Doença Pulmonar Obstrutiva Crônica'=26, 'Dor Crônica'=27, 'Endometriose'=28, 'Epilepsia'=29, 'Esclerose Lateral Amiotrófica'=30, 'Esclerose Múltipla'=31, 'Esclerose Sistêmica'=32, 'Espasticidade'=33, 'Espondilite Ancilosante'=34, 'Esquizofrenia'=36, 'Fenilcetonúria'=37, 'Fibrose Cística'=38, 'Hepatite Autoimune'=41, 'Hepatite C e Coinfecções'=43, 'Hiperplasia adrenal congênita'=45, 'Hiperprolactinemia'=46, 'Hipertensão Arterial Pulmonar'=47, 'Hipoparatireoidismo'=48, 'Imunodeficiência Primária'=50, 'Insuficiência Adrenal Primária - Doença de Addison'=51, 'Insuficiência Pancreática Exócrina'=52, 'Leiomioma de Útero'=53, 'Lúpus Eritrematoso Sistêmico'=54, 'Miastenia Gravis'=55, 'Neutropenia'=56, 'Osteodistrofia Renal'=57, 'Osteoporose'=58, 'Profilaxia da Reinfecção pelo Vírus da Hepatite B Pós-Transplante Hepático'=59, 'Psoríase'=60, 'Puberdade Precoce Central'=61, 'Púrpura Trombocitopênica Idiopática'=62, 'Raquitismo e Osteomalácia'=63, 'Retocolite Ulcerativa'=64, 'Síndrome de Guillain-Barré'=65, 'Síndrome de Turner'=67, 'Síndrome Nefrótica'=68, 'Síndromes Coronarianas Agudas'=69, 'Sobrecarga de Ferro'=70, 'Transplante Cardíaco'=71, 'Transplante de Medula ou Pâncreas'=73, 'Transplante Hepático'=75, 'Transplante Renal'=76, 'Transtorno Afetivo Bipolar do Tipo I'=77, 'Transtorno Esquizoafetivo'=78),
+        selected='10'
       ),
 
       menuItem(
@@ -79,9 +80,17 @@ ui <- dashboardPage(
         'Wiki', #
         # tabName = 'wiki',
         icon = icon('book'),
-        href = "https://bookdown.org/labxss/sabeis_pcdt2/"
+        href = "https://bookdown.org/labxss/sabeis_pcdt/"
       ), # menuItem wiki
 
+      menuItem(
+        'Repositório', #
+        # tabName = 'wiki',
+        icon = icon('database'),
+        href = "https://labxss.shinyapps.io/repositorio/"
+      ), # menuItem wiki
+      
+      
       menuItem(
         'Sobre',
         tabName = 'sobre',
@@ -285,12 +294,12 @@ ui <- dashboardPage(
         box(
           title = 'O que - Troca de medicamentos',
           status = 'primary',
-          width = 8,
+          width = 12,
           solidHeader = TRUE,
           collapsible = TRUE,
           footer = 'Log do número de usuários.',
 
-          plotOutput("tf_troca", height = "1000px")
+          plotOutput("tf_troca", height = "800")
         ),
 
         box(
@@ -301,7 +310,7 @@ ui <- dashboardPage(
           collapsible = TRUE,
           footer = 'Óbitos registrados no Sistema de Informação Ambulatorial - SIA.',
 
-          tableOutput("tf_apac_medicamento_sumario")
+          dataTableOutput("tf_apac_medicamento_sumario")
         )
 
       ),
@@ -446,7 +455,7 @@ ui <- dashboardPage(
           box(
             title = 'Previsão de usuários ARIMA',
             status = 'primary',
-            width = 12,
+            width = 5,
             solidHeader = TRUE,
             collapsible = FALSE,
 
@@ -558,20 +567,17 @@ server <- function(input, output) {
 
   tf_pcdt_cns = read.csv(file="dataset/csv/db_sabeis.tf_pcdt_cns.csv")
 
-
-
-
-
   td_pcdt_abrev = read.csv(file = 'dataset/csv/db_sabeis.td_pcdt_abrev.csv')
 
   output$td_pcdt_abrev <- renderUI({
 
-    available <- subset(td_pcdt_abrev, co_pcdt == input$inPCDT)$sg_procedimento
+    available <- as.matrix(subset(td_pcdt_abrev, co_pcdt == input$inPCDT)$sg_procedimento)
+    row.names(available) <- subset(td_pcdt_abrev, co_pcdt == input$inPCDT)$no_procedimento
 
     selectInput(
       inputId = "inABREV",
       label = "",
-      choices = unique(available)
+      choices = c(available)
       # , selected = unique(available)[1]
     )
 
@@ -751,9 +757,12 @@ server <- function(input, output) {
   })
 
 
-  tf_apac_medicamento_sumario = read.csv(file = 'dataset/csv/db_sabeis.tf_apac_medicamento_sumario.csv')
+  tf_apac_medicamento_sumario = 
+    subset(
+       read.csv(file = 'dataset/csv/db_sabeis.tf_apac_medicamento_sumario.csv'),
+       st_td_pcdt_abrev==1)
 
-  output$tf_apac_medicamento_sumario = renderTable({
+  output$tf_apac_medicamento_sumario = renderDataTable({
     tb=subset(
       tf_apac_medicamento_sumario,
       co_pcdt == input$inPCDT & co_sigtap_procedimento > 0
@@ -762,7 +771,16 @@ server <- function(input, output) {
     colnames(tb)=c("CID10","diagnóstico principal","SIGTAP","sigla","procedimento","usuários","inicio","fim")
     as.data.frame(tb)
 
-  })
+  },
+  # extensions = 'Buttons',
+  options = list(
+    dom = 'Bfrtip',
+    autoWidth = TRUE,
+    pageLength = 8,
+    buttons = c('copy', 'csv', 'excel', 'pdf', 'print'),
+    order = list(list(6, 'desc'))
+  )
+  ) # output$tf_apac_medicamento_sumario
 
   output$tf_pcdt_cns = renderPlot({
     treemap(tf_pcdt_cns,
@@ -799,17 +817,27 @@ server <- function(input, output) {
 
   })
 
-  output$tf_pcdt_medicamento_trimestre_cns_dt = renderDataTable({
-    tb=subset(tf_pcdt_medicamento_trimestre, sg_procedimento == input$inABREV & co_pcdt == input$inPCDT)
-    l=dim(tb)[1] # numero de afericoes
-    p=which(td_trimestre == tb[1,2]) # inicio do vetor
-    trimestre=td_trimestre[(p+l):(p+l+19),]
-    q=forecast(auto.arima(tb$qt_cns_paciente, allowmean = TRUE), h = 20)
-    q=cbind(trimestre,round(q$mean),round(q$lower),round(q$upper))
-    q[q<0] <- 0
-    colnames(q)=c("trimestre","previsao","min80","min95","max80","max95")
-    q
-  }, options = list(pageLength = 6))
+  output$tf_pcdt_medicamento_trimestre_cns_dt = renderDataTable(
+    {
+      tb=subset(tf_pcdt_medicamento_trimestre, sg_procedimento == input$inABREV & co_pcdt == input$inPCDT)
+      l=dim(tb)[1] # numero de afericoes
+      p=which(td_trimestre == tb[1,2]) # inicio do vetor
+      trimestre=td_trimestre[(p+l):(p+l+19),]
+      q=forecast(auto.arima(tb$qt_cns_paciente, allowmean = TRUE), h = 20)
+      q=cbind(trimestre,round(q$mean),round(q$lower),round(q$upper))
+      q[q<0] <- 0
+      colnames(q)=c("trimestre","previsao","min80","min95","max80","max95")
+      q
+    },
+    # server = FALSE, # para baixar tudo
+    # extensions = 'Buttons',
+    options = list(
+      dom = 'Bfrtip',
+      autoWidth = TRUE,
+      pageLength = 8,
+      buttons = c('copy', 'csv', 'excel', 'pdf', 'print')
+    )
+ )
 
   output$tf_pcdt_medicamento_trimestre_dispensacao = renderPlot({
 
@@ -839,7 +867,16 @@ server <- function(input, output) {
     q[q<0] <- 0
     colnames(q)=c("trimestre","previsao","min80","min95","max80","max95")
     q
-  }, options = list(pageLength = 6))
+  }, 
+  # server = FALSE, # para baixar tudo
+  # extensions = 'Buttons',
+  options = list(
+    dom = 'Bfrtip',
+    autoWidth = TRUE,
+    pageLength = 8,
+    buttons = c('copy', 'csv', 'excel', 'pdf', 'print')
+  )
+  )
 
 
 
@@ -870,7 +907,16 @@ server <- function(input, output) {
     q[q<0] <- 0
     colnames(q)=c("trimestre","previsao","min80","min95","max80","max95")
     q
-  }, options = list(pageLength = 6))
+  }, 
+  # server = FALSE, # para baixar tudo
+  # extensions = 'Buttons',
+  options = list(
+    dom = 'Bfrtip',
+    autoWidth = TRUE,
+    pageLength = 8,
+    buttons = c('copy', 'csv', 'excel', 'pdf', 'print')
+  )
+  )
 
 
   td_procedimento_abrev = read.csv(file="dataset/csv/db_sabeis.td_procedimento_abrev.csv")
