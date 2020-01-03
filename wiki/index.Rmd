@@ -1,4 +1,4 @@
---- 
+---
 title: "Sabeis - Sala Aberta de Inteligência em Saúde"
 subtitle: "PCDT - Protocolos Clínicos e Diretrizes Terapêuticas"
 author: "Felipe Ferré"
@@ -9,14 +9,307 @@ documentclass: book
 bibliography: [tcc.bib]
 biblio-style: apalike
 link-citations: yes
-github-repo: rstudio/bookdown-demo
+github-repo: https://github.com/labxss/sabeis_pcdt
 description: "Wiki do SABEIS - PCDT."
 ---
 
-```{r child = 'body.Rmd'}
+
+```{r include=FALSE}
 library(knitr)
-library (readr)
+library(readr)
 ```
+
+# Prefácio {-}
+
+Bem vindo ao tutorial do SABEIS - PCDT.
+
+Utilize o menu ao lado para navegar.
+
+## Por que ler esse livro? {-}
+
+Este livro ou wiki destina-se aos usuários do ambiente 
+<a href="https://labxss.shinyapps.io/sabeis_pcdt2/" target="blank">SABEIS PCDT</a>.
+
+SABEIS é a Sala Aberta de Inteligência em Saúde, um ambiente livre para 
+Planejamento Estratégico Situacional em Saúde (PESS).
+O ambiente é **livre** pois, por princípio, disponibiliza todo o repositório
+e código-fonte produzido, sempre com dados abertos e ferramentas gratuítas.
+
+Dessa forma, o que importa é o **conhecimento** e não a 
+parafernalha tecnológica.
+
+O SABEIS, além de livre, é **leve**, isto é, passível de ser processado em
+máquinas de baixo custo, quando comparado com as soluções de mercado.
+
+**Protocolos Clínicos e Diretrizes Terapêuticas** (PCDT) são instrumentos 
+que regem ações clínicas informadas por evidências. 
+Tratamentos disponibilizados pelo Sistema Único de Saúde (SUS) contam com a 
+transparência do PCDT, o qual explicita os critérios clínicos para acesso a
+tecnologias, sobretudo as dotadas de alto custo.
+
+## Estrutura do livro {-}
+
+No **prefácio** encontram-se informações acerca do livro.
+
+No capítulo **introdução** encontram-se informações acerca sobre o SABEIS - PCDT.
+
+No capítulo **repositório** é descrito o processo de coleta e processamento de dados.
+
+No capítulo **visualização** é apresentado componentes de cartões e painéis.
+
+## Informação acerca de software e convenções {-}
+
+Majoritariamente, o ambiente de desenvolvimento é o **R**, adotando-se o
+**RStudio**.
+
+Nas etapas de coleta e processamento de texto, além do R, utiliza-se 
+linguagem **bash**.
+
+O repositório é disponibilizado em arquivo texto tabulado. 
+Contudo, o processamento ocorre em PostgreSQL.
+
+## Agradecimentos {-}
+
+O presente projeto foi desenvolvido durante a especialização em 
+Informática em Saúde, HSL e contou com o apoio do DGITIS/SCTIE/MS.
+
+## Autoria {-}
+
+Felipe Ferré.
+
+# Introdução
+
+O presente capítulo dedica-se a apresentar a ferramenta SABEIS - PCDT.
+
+## Motivação
+
+A Comissão Nacional de Incorporação de Tecnologias no SUS (CONITEC) conta com
+o respaldo técnico do Ministério da Saúde e da sociedade civil.
+Contudo, os dados de mundo real, isto é, dados administrativos de dispensação,
+internação hospitalar, procedimento ambulatorial, óbitos, entre outros, não
+são coletados automaticamente e com transparência do método de extração e 
+análise.
+
+O SABEIS PCDT é o ambiente que integra um conjunto de soluções de forma aberta
+para auxiliar a gestão e o controle social relacionado as tecnologias 
+disponibilizadas no SUS.
+
+
+## Primeiros Passos
+
+Você pode navegar livremente nos painéis 
+<a href="https://labxss.shinyapps.io/sabeis_pcdt2/" target="blank">SABEIS PCDT</a>. 
+Basta selecionar um dentre as dezenas de PCDT disponíveis no menu o qual 
+modificará o conteúdo contido nas abas **explore** e **extrapole**.
+
+Você pode baixar os painéis e customizar no 
+<a href="https://github.com/labxss/sabeis_pcdt" target="blank">github</a>. 
+
+Você pode baixar o 
+<a href="https://github.com/labxss/repositorio" target="blank">repositório</a> 
+em arquivo texto tabulado (*flatfile*).
+
+## Apresentação do SABEIS
+
+### Selecione
+
+Aqui é selecionado o **Protocolos Clínicos e Diretrizes Terapêuticas** (PCDT).
+
+São disponibilizados os seguintes PCDT.
+
+- 1 - Acne
+- 2 - Acromegalia
+- 3 - Anemia Aplástica
+- 7 - Aplasia Pura Adquirida Crônica da Série Vermelha
+- 8 - Artrite Psoríaca
+- 10 - Artrite Reumatoide
+- 11 - Asma
+- 12 - Comportamento Agressivo no Transtorno de Espectro do Autismo
+- 14 - Dermatomiosite e Polimiosite
+- 15 - Diabetes Insípido
+- 16 - Dislipidemia
+- 17 - Distonias Focais e Espasmo Hemifacial
+- 19 - Doença de Crohn
+- 22 - Doença de Parkinson
+- 23 - Doença de Wilson
+- 24 - Doença Falciforme
+- 26 - Doença Pulmonar Obstrutiva Crônica
+- 27 - Dor Crônica
+- 28 - Endometriose
+- 29 - Epilepsia
+- 30 - Esclerose Lateral Amiotrófica
+- 31 - Esclerose Múltipla
+- 32 - Esclerose Sistêmica
+- 33 - Espasticidade
+- 34 - Espondilite Ancilosante
+- 36 - Esquizofrenia
+- 37 - Fenilcetonúria
+- 38 - Fibrose Cística
+- 41 - Hepatite Autoimune
+- 43 - Hepatite C e Coinfecções
+- 45 - Hiperplasia adrenal congênita
+- 46 - Hiperprolactinemia
+- 47 - Hipertensão Arterial Pulmonar
+- 48 - Hipoparatireoidismo
+- 50 - Imunodeficiência Primária
+- 51 - Insuficiência Adrenal Primária - Doença de Addison
+- 52 - Insuficiência Pancreática Exócrina
+- 53 - Leiomioma de Útero
+- 54 - Lúpus Eritrematoso Sistêmico
+- 55 - Miastenia Gravis
+- 56 - Neutropenia
+- 57 - Osteodistrofia Renal
+- 58 - Osteoporose
+- 59 - Profilaxia da Reinfecção pelo Vírus da Hepatite B Pós-Transplante Hepático
+- 60 - Psoríase
+- 61 - Puberdade Precoce Central
+- 62 - Púrpura Trombocitopênica Idiopática
+- 63 - Raquitismo e Osteomalácia
+- 64 - Retocolite Ulcerativa
+- 65 - Síndrome de Guillain-Barré
+- 67 - Síndrome de Turner
+- 68 - Síndrome Nefrótica
+- 69 - Síndromes Coronarianas Agudas
+- 70 - Sobrecarga de Ferro
+- 71 - Transplante Cardíaco
+- 73 - Transplante de Medula ou Pâncreas
+- 75 - Transplante Hepático
+- 76 - Transplante Renal
+- 77 - Transtorno Afetivo Bipolar do Tipo I
+- 78 - Transtorno Esquizoafetivo
+
+
+Após selecionado o PCDT, os respectivos procedimentos de medicamentos 
+coletados a partir do 
+**Sistema de Informações Ambulatoriais** SIA.
+ segundo o dignótico principal da 
+**Classificação Internacional de Doenças** CID-10.
+Os medicamentos são codificados pelo 
+**Sistema de Gerenciamento da Tabela de Procedimentos, Medicamentos e OPM do SUS**
+(<a href="sigtap.datasus.gov.br" target="blank">SIGTAP</a>).
+
+### Explore
+
+O segmento **explore** é constituído de painel para entendimento dos dados 
+históricos.
+
+Cada **cartão**, isto é, átomo de informação é classificado segundo a quem ou 
+que se refere o dado
+
+- quem - usuário do sistema de saúde
+- o que - medicamento ou diagnóstico
+- onde - território do usuário ou do estabelecimento
+
+Cada **cartão** é classificado inspirado na tipologia de  
+**Indicadores e Dados Básicos para a Saúde no Brasil** (IDB) da 
+**Rede Integrada de Informações para a Saúde** 
+(<a href="www.ripsa.org.br" target="blank">RIPSA</a>).
+
+- A - Demográficos: Medem a distribuição de fatores determinantes da situação de saúde relacionados à dinâmica populacional na área geográfica referida.
+- B - Socioeconômicos - Medem a distribuição dos fatores determinantes da situação de saúde relacionados ao perfil econômico e social da população residente na área geográfica referida.
+- C - Mortalidade: Informam a ocorrência e distribuição das causas de óbito no perfil da mortalidade da população residente na área geográfica referida.
+- D - Morbidade: Informam a ocorrência e distribuição de doenças e agravos à saúde na população residente na área geográfica referida.
+- G - Fatores de Risco e de Proteção: Medem os fatores de risco (por ex. tabaco, álcool), e/ou proteção (por ex. alimentação saudável, atividade física, aleitamento) que predispõe à doenças ou, protegem das doenças e agravos.
+- E - Recursos: Medem a oferta e a demanda de recursos humanos, físicos e financeiros para atendimento às necessidades básicas de saúde da população na área geográfica referida.
+- F - Cobertura: Medem o grau de utilização dos meios oferecidos pelo setor público e pelo setor privado para atender às necessidades de saúde da população na área geográfica referida.
+
+
+### Extrapole
+
+O ambiente **extrapole** pode replicar soluções do **explore**, contudo,
+aqui há maior liberdade, visto que a finalidade é estabelecer 
+**projeção** com métodos estatísticos ou **predição** com 
+**aprendizado de máquina**.
+
+## Dicas
+
+Explore os painéis disponíveis antes de criar os próprios.
+
+Você não precisa de ambiente on-line. Basta baixar no 
+<a href="https://github.com/labxss/sabeis_pcdt" target="blank">github</a> 
+e rodar no RStudio
+em sua própria máquina.
+Os painéis concebidos numa máquina com processador i7 com 8GB de RAM.
+
+# Repositório
+
+O presente capítulo discorre sobre o processo de coleta e transformação de dados.
+
+## Resumo da coleta bash
+
+```{r child = 'rmd/etl_001_bash.Rmd', echo=FALSE}
+```
+
+## Coleta bash automatizável
+
+```{r child = 'rmd/etl_003_bash.Rmd', echo=FALSE}
+```
+
+
+## Processamento SQL
+
+```{r child = 'rmd/etl_002_SQL.Rmd', echo=FALSE}
+```
+
+## Download
+
+_
+
+# Visualização
+
+## Geral - Usuários ao mês por habitante segundo o PCDT - D
+```{r child = 'rmd/Cartao_001D.Rmd', echo=FALSE}
+```
+
+## Explore - Quem - usuários do PCDT - D
+```{r child = 'rmd/Cartao_002D.Rmd', echo=FALSE}
+```
+
+## Explore - O que - Diagnósticos dos itens dispensados - D
+```{r child = 'rmd/Cartao_003D.Rmd', echo=FALSE}
+```
+
+## Explore - O que - Market Share do SUS - E
+```{r child = 'rmd/Cartao_004E.Rmd', echo=FALSE}
+```
+
+## Explore - O que - Usuários-ano de medicamento - F
+```{r child = 'rmd/Cartao_005F.Rmd', echo=FALSE}
+```
+
+## Explore - Onde - Cobertura populacional e de municípios no estado - F
+```{r child = 'rmd/Cartao_006F.Rmd', echo=FALSE}
+```
+
+## Explore - Onde - Número de estabelecimentos por estado - E
+```{r child = 'rmd/Cartao_007E.Rmd', echo=FALSE}
+```
+
+## Explore - Quem - Óbtidos dos usuários do PCDT - C
+```{r child = 'rmd/Cartao_008C.Rmd', echo=FALSE}
+```
+
+## Explore - O que - Troca de medicamentos - D
+```{r child = 'rmd/Cartao_009D.Rmd', echo=FALSE}
+```
+
+## Extrapole - Número de usuários atentidos por trimestre e previstos com o método ARIMA - D
+```{r child = 'rmd/Cartao_010D.Rmd', echo=FALSE}
+```
+
+## Extrapole - O que - Projeção do número de dispensações por trimeste e previsão com o método ARIMA - E
+```{r child = 'rmd/Cartao_011E.Rmd', echo=FALSE}
+```
+
+## Extrapole - O que - Projeção da quantidade aprovada por trimestre e prevista com o método ARIMA - E
+```{r child = 'rmd/Cartao_012E.Rmd', echo=FALSE}
+```
+
+# (APPENDIX) Apêndice {-} 
+
+## Apêndice A - links úteis {-}
+
+-
 
 
 ```{r include=FALSE}
