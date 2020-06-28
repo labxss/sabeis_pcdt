@@ -760,7 +760,7 @@ server <- function(input, output) {
   tf_apac_medicamento_sumario = 
     subset(
        read.csv(file = 'dataset/csv/db_sabeis.tf_apac_medicamento_sumario.csv'),
-       st_td_pcdt_abrev==1)
+       co_pcdt==1)
 
   output$tf_apac_medicamento_sumario = renderDataTable({
     tb=subset(
